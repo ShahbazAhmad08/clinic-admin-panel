@@ -13,12 +13,16 @@ import {
   Stethoscope,
   ChevronDown,
   Calendar,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 import PatientModal from './PatientModal';
 import QuickQueueModal from './QuickQueueModal';
 
 export default function Header() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [time, setTime] = useState('');
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
@@ -147,6 +151,15 @@ export default function Header() {
           >
             <UserPlus className="w-4 h-4" />
             <span>New Patient</span>
+          </button>
+
+          {/* Logout Button */}
+          <button
+            onClick={logout}
+            className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 rounded-xl transition-all shadow-sm"
+            title="Sign Out of Admin Desk"
+          >
+            <LogOut className="w-4 h-4" />
           </button>
         </div>
       </header>

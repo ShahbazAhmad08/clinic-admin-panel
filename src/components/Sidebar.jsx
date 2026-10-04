@@ -16,7 +16,10 @@ import {
   Settings,
   HeartPulse,
   PlusCircle,
+  LogOut,
+  ShieldCheck,
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -32,6 +35,7 @@ const navigation = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 w-64 hidden md:flex flex-col bg-slate-900/95 border-r border-slate-800/80 backdrop-blur-xl transition-all duration-300">
@@ -84,17 +88,27 @@ export default function Sidebar() {
         })}
       </div>
 
-      {/* Doctor/Assistant Active Info Card */}
-      <div className="p-3 border-t border-slate-800/60 bg-slate-950/40 m-3 rounded-2xl border">
+      {/* Admin Session Info Card */}
+      <div className="p-3 border-t border-slate-800/60 bg-slate-950/60 m-3 rounded-2xl border border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center text-xs font-bold text-white ring-2 ring-cyan-500/30">
-            DR
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-xs font-bold text-white shadow-md shadow-cyan-600/20 shrink-0">
+            <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-slate-200 truncate">Dr. Rajesh Sharma</p>
-            <p className="text-[10px] text-cyan-400 truncate">Senior Physician • Cabin 1</p>
+            <p className="text-xs font-semibold text-slate-100 truncate">
+              {user?.name || 'Clinic Admin'}
+            </p>
+            <p className="text-[10px] text-cyan-400 truncate font-mono">
+              {user?.email || 'admin@arogyacare.com'}
+            </p>
           </div>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 ring-4 ring-emerald-400/20" title="Online" />
+          <button
+            onClick={logout}
+            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+            title="Log Out"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>
