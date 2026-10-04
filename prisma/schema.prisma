@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Doctor {
+  id              String   @id @default(cuid())
+  name            String
+  specialization  String
+  qualification   String   @default("MBBS, MD")
+  phone           String
+  email           String?
+  cabinNo         String   @default("Cabin 1")
+  consultationFee Float    @default(500)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  visits          Visit[]
+}
+
+model Patient {
+  id               String       @id @default(cuid())
+  uhid             String       @unique // e.g. PAT-2026-0001
+  name             String
+  phone            String
+  email            String?
+  age              Int
+  gender           String       // Male, Female, Other
+  bloodGroup       String?      // A+, O+, B+, AB+, etc.
+  address          String?
+  emergencyContact String?
+  allergies        String?      // e.g. "Penicillin, Sulfa"
+  chronicDiseases  String?      // e.g. "Type 2 Diabetes, Hypertension"
+  medicalHistory   String?
+  avatarUrl        String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  visits           Visit[]
+  invoices         Invoice[]
+  labReports       LabReport[]
+}
+
+model Visit {
+  id               String        @id @default(cuid())
+  tokenNo          Int           // 1, 2, 3 daily token
+  patientId        String
+  doctorId         String
+  visitDate        DateTime      @default(now())
+  visitType        String        @default("NEW_VISIT") // NEW_VISIT, FOLLOW_UP, EMERGENCY
+  status           String        @default("WAITING")   // WAITING, IN_CONSULTATION, COMPLETED, CANCELLED
+  chiefComplaints  String?       // Symptoms e.g. "Fever for 3 days, cough"
+  diagnosis        String?       // "Viral Bronchitis"
+  doctorNotes      String?
+  nextFollowUpDate DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  patient          Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor           Doctor        @relation(fields: [doctorId], references: [id])
+  vitals           Vital[]
+  prescriptions    Prescription[]
+  labReports       LabReport[]
+  invoices         Invoice[]
+}
+
+model Vital {
+  id           String   @id @default(cuid())
+  visitId      String
+  bpSystolic   Int?     // e.g. 120
+  bpDiastolic  Int?     // e.g. 80
+  pulseRate    Int?     // bpm e.g. 74
+  weight       Float?   // in kg e.g. 68.5
+  temperature  Float?   // in F e.g. 98.6
+  spo2         Int?     // percentage e.g. 99
+  bloodSugar   Float?   // mg/dL e.g. 110
+  recordedAt   DateTime @default(now())
+
+  visit        Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
+}
+
+model Prescription {
+  id               String   @id @default(cuid())
+  visitId          String
+  prescriptionType String   @default("PHOTO_UPLOAD") // PHOTO_UPLOAD, DIGITAL, HYBRID
+  photoUrl         String?  // Base64 or URL of handwritten prescription photo
+  digitalRxJson    String?  // JSON string containing array of medicines: [{ name, dosage, timing, duration, notes }]
+  instructions     String?  // e.g. "Drink plenty of warm water, avoid oily food"
+  doctorSignature  String?
+  createdAt        DateTime @default(now())
+
+  visit            Visit    @relation(fields: [visitId], references: [id], onDelete: Cascade)
+}
+
+model LabReport {
+  id            String   @id @default(cuid())
+  patientId     String
+  visitId       String?
+  testName      String   // e.g. "Complete Blood Count (CBC)", "Chest X-Ray"
+  testCategory  String   @default("PATHOLOGY") // PATHOLOGY, RADIOLOGY, BIOCHEMISTRY, OTHER
+  reportFileUrl String   // Base64 / File URL
+  fileType      String   @default("IMAGE") // IMAGE, PDF
+  testDate      DateTime @default(now())
+  labName       String?  @default("In-House Lab")
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  visit         Visit?   @relation(fields: [visitId], references: [id])
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNo       String   @unique // e.g. INV-2026-0001
+  patientId       String
+  visitId         String?
+  consultationFee Float    @default(500)
+  procedureFee    Float    @default(0)
+  medicineFee     Float    @default(0)
+  discount        Float    @default(0)
+  totalAmount     Float
+  paidAmount      Float
+  paymentMethod   String   @default("CASH") // CASH, UPI, CARD, NET_BANKING
+  paymentStatus   String   @default("PAID") // PAID, PENDING, PARTIAL
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  visit           Visit?   @relation(fields: [visitId], references: [id])
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  name      String
+  role      String   @default("RECEPTIONIST") // ADMIN, RECEPTIONIST, ASSISTANT, NURSE
+  phone     String
+  email     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
