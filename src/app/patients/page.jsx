@@ -15,11 +15,13 @@ import {
   Clock,
   Eye,
   FileText,
+  Printer,
   FileSpreadsheet,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import PatientModal from '@/components/PatientModal';
 import QuickQueueModal from '@/components/QuickQueueModal';
+import PrescriptionSlipModal from '@/components/PrescriptionSlipModal';
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState([]);
@@ -27,7 +29,7 @@ export default function PatientsPage() {
   const [loading, setLoading] = useState(true);
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState(null);
-  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+  const [selectedPatientForPrint, setSelectedPatientForPrint] = useState(null);
 
   useEffect(() => {
     loadPatients();
@@ -70,24 +72,24 @@ export default function PatientsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0b1329]/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
             <Users className="w-3.5 h-3.5" />
-            Electronic Health Records (EHR)
+            Electronic Health Records (EHR) • Dr. Amitabh Upadhyay
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white font-serif">
             Patients Medical Directory
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Search patient records, medical history, last visit details & prescription archives.
+            Search registered patients, instant 1-click Prescription Slip (पर्चा) print, medical history & past visits.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={exportCSV}
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-2xl text-xs md:text-sm font-semibold flex items-center gap-2 transition-all"
+            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-2xl text-xs md:text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
           >
             <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
             <span>Export CSV</span>
@@ -98,7 +100,7 @@ export default function PatientsPage() {
               setEditingPatient(null);
               setIsPatientModalOpen(true);
             }}
-            className="px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-cyan-600/20 active:scale-95"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-700/25 active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             <span>Register New Patient</span>
@@ -107,7 +109,7 @@ export default function PatientsPage() {
       </div>
 
       {/* Search Bar & Summary */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0b1329]/60 p-4 rounded-2xl border border-slate-800">
         <div className="relative flex-1 max-w-lg">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
@@ -115,17 +117,17 @@ export default function PatientsPage() {
             placeholder="Search by Patient Name, Phone Number, UHID (e.g. PAT-2026-0001)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-10 pr-4 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-10 pr-4 py-2.5 text-xs md:text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500"
           />
         </div>
 
         <div className="text-xs text-slate-400 font-medium">
-          Showing <span className="text-cyan-400 font-bold">{filteredPatients.length}</span> registered patients
+          Showing <span className="text-blue-400 font-bold">{filteredPatients.length}</span> registered patients
         </div>
       </div>
 
       {/* Patients Table */}
-      <div className="bg-slate-900/70 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+      <div className="bg-[#0b1329]/80 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-950/80 border-b border-slate-800 text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
@@ -135,7 +137,7 @@ export default function PatientsPage() {
                 <th className="py-3.5 px-5">Contact / Phone</th>
                 <th className="py-3.5 px-5">Demographics</th>
                 <th className="py-3.5 px-5">Allergies & Medical Notes</th>
-                <th className="py-3.5 px-5">Last Visit Date</th>
+                <th className="py-3.5 px-5">Last Visit</th>
                 <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
@@ -150,7 +152,7 @@ export default function PatientsPage() {
                   >
                     {/* UHID */}
                     <td className="py-4 px-5">
-                      <span className="px-2.5 py-1 rounded-lg bg-cyan-500/10 text-cyan-300 font-mono font-bold text-xs border border-cyan-500/30">
+                      <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-300 font-mono font-bold text-xs border border-blue-500/30">
                         {patient.uhid}
                       </span>
                     </td>
@@ -159,7 +161,7 @@ export default function PatientsPage() {
                     <td className="py-4 px-5">
                       <Link
                         href={`/patients/${patient.id}`}
-                        className="font-bold text-sm text-slate-100 group-hover:text-cyan-400 transition-colors block"
+                        className="font-bold text-sm text-slate-100 group-hover:text-blue-400 transition-colors block"
                       >
                         {patient.name}
                       </Link>
@@ -213,21 +215,31 @@ export default function PatientsPage() {
                       {lastVisit ? (
                         <div>
                           <span className="font-semibold text-slate-200 flex items-center gap-1 text-[11px]">
-                            <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                            <Calendar className="w-3.5 h-3.5 text-blue-400" />
                             {formatDate(lastVisit.visitDate)}
                           </span>
                           <span className="text-[10px] text-slate-500">
-                            {lastVisit.diagnosis || 'General Checkup'}
+                            {lastVisit.diagnosis || 'OPD Visit'}
                           </span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 italic text-[11px]">Never Visited</span>
+                        <span className="text-slate-500 italic text-[11px]">New Registration</span>
                       )}
                     </td>
 
                     {/* Actions */}
                     <td className="py-4 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {/* 1-Click Print Parcha Button */}
+                        <button
+                          onClick={() => setSelectedPatientForPrint(patient)}
+                          className="px-2.5 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl font-bold text-xs flex items-center gap-1 transition-all"
+                          title="Print Doctor Prescription Slip (पर्चा)"
+                        >
+                          <Printer className="w-3.5 h-3.5" />
+                          <span>Parcha</span>
+                        </button>
+
                         <button
                           onClick={() => {
                             setEditingPatient(patient);
@@ -241,7 +253,7 @@ export default function PatientsPage() {
 
                         <Link
                           href={`/patients/${patient.id}`}
-                          className="px-3 py-1.5 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 rounded-xl font-semibold text-xs flex items-center gap-1 transition-all"
+                          className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-semibold text-xs flex items-center gap-1 transition-all"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>History</span>
@@ -255,6 +267,16 @@ export default function PatientsPage() {
           </table>
         </div>
       </div>
+
+      {/* Prescription Slip Print Modal */}
+      {selectedPatientForPrint && (
+        <PrescriptionSlipModal
+          isOpen={!!selectedPatientForPrint}
+          patientData={selectedPatientForPrint}
+          visitData={selectedPatientForPrint.visits?.[0]}
+          onClose={() => setSelectedPatientForPrint(null)}
+        />
+      )}
 
       {/* Modals */}
       {isPatientModalOpen && (

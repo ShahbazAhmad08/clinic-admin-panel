@@ -2,9 +2,9 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding clinic SQL database with realistic patients, doctors, OPD queues, and prescriptions...');
+  console.log('🌱 Seeding database for Dr. Amitabh Upadhyay - Skin & HIV Care Clinic...');
 
-  // Clear existing
+  // Clear existing data
   await prisma.prescription.deleteMany();
   await prisma.vital.deleteMany();
   await prisma.invoice.deleteMany();
@@ -14,149 +14,134 @@ async function main() {
   await prisma.doctor.deleteMany();
   await prisma.staff.deleteMany();
 
-  // Create Doctors
-  const drRajesh = await prisma.doctor.create({
+  // Create Primary Doctor: Dr. Amitabh Upadhyay
+  const drAmitabh = await prisma.doctor.create({
     data: {
-      name: 'Dr. Rajesh Sharma',
-      specialization: 'Senior Consultant Physician & Diabetologist',
-      qualification: 'MBBS, MD (General Medicine)',
-      phone: '+91 98765 43210',
-      email: 'dr.rajesh@arogyacare.com',
-      cabinNo: 'Cabin 1',
+      name: 'Dr. Amitabh Upadhyay',
+      specialization: 'Senior Consultant Dermatology, V.D., Leprosy & AIDS',
+      qualification: 'M.B.B.S., FHM (MAMC, Delhi), MIAS (Geneva, Switzerland)',
+      phone: '+91 9555960720, 9935140534',
+      email: 'amitabhsu@rediffmail.com',
+      cabinNo: 'Main Cabin',
       consultationFee: 500,
-    },
-  });
-
-  const drPriya = await prisma.doctor.create({
-    data: {
-      name: 'Dr. Priya Patel',
-      specialization: 'Cardiologist & General Medicine',
-      qualification: 'MBBS, MD, DM (Cardiology)',
-      phone: '+91 98765 12345',
-      email: 'dr.priya@arogyacare.com',
-      cabinNo: 'Cabin 2',
-      consultationFee: 700,
     },
   });
 
   // Create Staff
   await prisma.staff.createMany({
     data: [
-      { name: 'Amit Kumar', role: 'RECEPTIONIST', phone: '+91 98112 33445', email: 'reception@arogyacare.com' },
-      { name: 'Sunita Roy', role: 'ASSISTANT', phone: '+91 98223 44556', email: 'sunita@arogyacare.com' },
+      { name: 'Clinic Receptionist', role: 'RECEPTIONIST', phone: '+91 9555960720', email: 'reception@skinandhivcare.com' },
+      { name: 'Clinic Assistant', role: 'ASSISTANT', phone: '+91 9935140534', email: 'assistant@skinandhivcare.com' },
     ],
   });
 
-  // Sample handwritten prescription photo placeholder (base64 SVG data URI representing a doctor prescription slip)
-  const sampleRxPhotoSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="800" viewBox="0 0 600 800" fill="%23fff"><rect width="100%" height="100%" fill="%23fdfbf7"/><rect x="20" y="20" width="560" height="760" rx="8" fill="%23ffffff" stroke="%23cbd5e1" stroke-width="2"/><text x="40" y="60" font-family="sans-serif" font-size="22" font-weight="bold" fill="%230891b2">AROGYA CLINIC &amp; OPD</text><text x="40" y="85" font-family="sans-serif" font-size="12" fill="%2364748b">Dr. Rajesh Sharma (MBBS, MD) • Reg No: 84920/MCI</text><line x1="40" y1="100" x2="560" y2="100" stroke="%230891b2" stroke-width="2"/><text x="40" y="130" font-family="sans-serif" font-size="14" font-weight="bold" fill="%231e293b">Patient: Ramesh Verma (48y/M)</text><text x="380" y="130" font-family="sans-serif" font-size="13" fill="%2364748b">Date: 03 Oct 2026</text><text x="40" y="155" font-family="sans-serif" font-size="12" fill="%23e11d48">Allergies: Penicillin, Dust</text><line x1="40" y1="170" x2="560" y2="170" stroke="%23e2e8f0" stroke-width="1"/><text x="40" y="220" font-family="serif" font-size="32" font-style="italic" font-weight="bold" fill="%231e293b">&#8478;</text><text x="75" y="250" font-family="cursive" font-size="17" fill="%230f172a">1. Tab Metformin 500mg &#8212; 1-0-1 (After Meals) x 30 days</text><text x="75" y="290" font-family="cursive" font-size="17" fill="%230f172a">2. Tab Telmisartan 40mg &#8212; 1-0-0 (Morning) x 30 days</text><text x="75" y="330" font-family="cursive" font-size="17" fill="%230f172a">3. Cap Pantocid 40 &#8212; 1-0-0 (Empty Stomach) x 15 days</text><text x="40" y="420" font-family="sans-serif" font-size="14" font-weight="bold" fill="%23334155">Advice / Follow-up:</text><text x="40" y="450" font-family="sans-serif" font-size="13" fill="%23475569">&#8226; Low salt, low carbohydrate diabetic diet</text><text x="40" y="475" font-family="sans-serif" font-size="13" fill="%23475569">&#8226; Daily 30 min morning walk</text><text x="40" y="500" font-family="sans-serif" font-size="13" fill="%23475569">&#8226; Recheck Fasting &amp; PP Sugar in 15 days</text><line x1="380" y1="700" x2="540" y2="700" stroke="%23334155" stroke-width="1"/><text x="400" y="725" font-family="cursive" font-size="18" fill="%230891b2">Dr. Rajesh Sharma</text><text x="410" y="745" font-family="sans-serif" font-size="11" fill="%2364748b">Signature / Stamp</text></svg>`;
-
-  // Create Patients
+  // Create Sample Patients
   const p1 = await prisma.patient.create({
     data: {
       uhid: 'PAT-2026-0001',
-      name: 'Ramesh Chandra Verma',
+      name: 'Anishta',
       phone: '9876543210',
-      email: 'ramesh.verma@example.com',
-      age: 48,
+      email: 'anishta@example.com',
+      age: 52,
       gender: 'Male',
       bloodGroup: 'B+',
-      address: 'Flat 402, Shanti Heights, Kanpur',
-      emergencyContact: 'Son: Rohit Verma (9876500112)',
-      allergies: 'Penicillin, Dust allergy',
-      chronicDiseases: 'Type 2 Diabetes, Hypertension',
-      medicalHistory: 'Diabetic since 2018. Under regular checkup.',
+      address: 'Civil Lines, Prayagraj',
+      emergencyContact: 'Family: 9876500112',
+      allergies: 'Sulfa drugs',
+      chronicDiseases: 'Skin Dermatitis & Hypertension',
+      medicalHistory: 'Chronic eczema under routine follow-up.',
     },
   });
 
   const p2 = await prisma.patient.create({
     data: {
       uhid: 'PAT-2026-0002',
-      name: 'Ananya Sharma',
+      name: 'Rajesh Verma',
       phone: '9811223344',
-      email: 'ananya.sharma@example.com',
-      age: 29,
-      gender: 'Female',
+      email: 'rajesh.verma@example.com',
+      age: 44,
+      gender: 'Male',
       bloodGroup: 'O+',
-      address: '12/A, Civil Lines, Lucknow',
-      emergencyContact: 'Mother: Sunita (9811223355)',
-      allergies: 'Sulfa drugs',
-      chronicDiseases: 'Hypothyroidism',
-      medicalHistory: 'Thyroid diagnosed in 2021. Taking Thyronorm 50mcg.',
+      address: 'Jhunsi, Prayagraj',
+      emergencyContact: 'Brother: 9811223355',
+      allergies: 'Penicillin',
+      chronicDiseases: 'Psoriasis',
+      medicalHistory: 'Skin lesions on extensor surfaces.',
     },
   });
 
   const p3 = await prisma.patient.create({
     data: {
       uhid: 'PAT-2026-0003',
-      name: 'Mohammad Tariq',
+      name: 'Sunita Devi',
       phone: '9988776655',
-      age: 35,
-      gender: 'Male',
+      age: 38,
+      gender: 'Female',
       bloodGroup: 'A+',
-      address: '45, GT Road, Allahabad',
-      emergencyContact: 'Wife: Fatima (9988776644)',
+      address: 'Naini, Prayagraj',
+      emergencyContact: 'Husband: 9988776644',
       allergies: 'None',
-      chronicDiseases: 'None',
-      medicalHistory: 'No major surgical history.',
+      chronicDiseases: 'Allergic Contact Dermatitis',
+      medicalHistory: 'Recurrent itching on hands and forearms.',
     },
   });
 
   const p4 = await prisma.patient.create({
     data: {
       uhid: 'PAT-2026-0004',
-      name: 'Kavita Mishra',
+      name: 'Vikas Pandey',
       phone: '9765432109',
-      age: 62,
-      gender: 'Female',
+      age: 31,
+      gender: 'Male',
       bloodGroup: 'AB+',
-      address: '88/4, Indiranagar, Lucknow',
-      emergencyContact: 'Husband: S.K. Mishra (9765432100)',
-      allergies: 'Aspirin',
-      chronicDiseases: 'Hypertension, Osteoarthritis',
-      medicalHistory: 'Knee pain past 3 years.',
+      address: 'Katra, Prayagraj',
+      emergencyContact: 'Father: 9765432100',
+      allergies: 'None',
+      chronicDiseases: 'Fungal Infection (Tinea Corporis)',
+      medicalHistory: 'Treated for fungal rash 6 months ago.',
     },
   });
 
-  // Create Past & Today's Visits for P1
-  const v1Past = await prisma.visit.create({
+  // Create Today's Visits
+  // Token 1: In Consultation (Anishta)
+  const v1 = await prisma.visit.create({
     data: {
-      tokenNo: 4,
+      tokenNo: 1,
       patientId: p1.id,
-      doctorId: drRajesh.id,
-      visitDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000), // 25 days ago
-      visitType: 'NEW_VISIT',
-      status: 'COMPLETED',
-      chiefComplaints: 'High blood sugar, fatigue, frequent urination at night',
-      diagnosis: 'Type 2 Diabetes Mellitus - Uncontrolled & Stage 1 HTN',
-      doctorNotes: 'Advised strict diet and regular glucose monitoring.',
-      nextFollowUpDate: new Date(),
+      doctorId: drAmitabh.id,
+      visitDate: new Date(),
+      visitType: 'FOLLOW_UP',
+      status: 'IN_CONSULTATION',
+      chiefComplaints: 'Follow-up for eczema & skin rashes',
+      diagnosis: 'Chronic Atopic Dermatitis with Xerosis',
+      doctorNotes: 'Apply topical emollient twice daily. Avoid harsh soaps.',
+      nextFollowUpDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
     },
   });
 
   await prisma.vital.create({
     data: {
-      visitId: v1Past.id,
-      bpSystolic: 145,
-      bpDiastolic: 92,
-      pulseRate: 82,
-      weight: 78.5,
-      temperature: 98.4,
-      spo2: 98,
-      bloodSugar: 210,
+      visitId: v1.id,
+      bpSystolic: 124,
+      bpDiastolic: 82,
+      pulseRate: 76,
+      weight: 68.0,
+      temperature: 98.6,
+      spo2: 99,
+      bloodSugar: 110,
     },
   });
 
   await prisma.prescription.create({
     data: {
-      visitId: v1Past.id,
-      prescriptionType: 'PHOTO_UPLOAD',
-      photoUrl: sampleRxPhotoSvg,
+      visitId: v1.id,
+      prescriptionType: 'DIGITAL',
       digitalRxJson: JSON.stringify([
-        { name: 'Tab Metformin 500mg', dosage: '1-0-1', timing: 'After Meals', duration: '30 days' },
-        { name: 'Tab Telmisartan 40mg', dosage: '1-0-0', timing: 'Morning', duration: '30 days' },
-        { name: 'Cap Pantocid 40', dosage: '1-0-0', timing: 'Empty Stomach', duration: '15 days' },
+        { name: 'Tab Levocetirizine 5mg', dosage: '0-0-1', timing: 'Bedtime', duration: '15 days', notes: 'For itching' },
+        { name: 'Mometasone Furoate 0.1% Cream', dosage: '1-0-1', timing: 'Apply thin layer', duration: '10 days', notes: 'Affected area only' },
+        { name: 'Liquid Paraffin + White Soft Paraffin Lotion', dosage: '1-1-1', timing: 'After bath & as needed', duration: '30 days', notes: 'Moisturizer' },
       ]),
-      instructions: 'Low salt, diabetic diet. Morning walk 30 mins daily.',
+      instructions: 'Use lukewarm water for bathing. Avoid synthetic clothes. Review after 15 days.',
     },
   });
 
@@ -164,155 +149,84 @@ async function main() {
     data: {
       invoiceNo: 'INV-2026-0001',
       patientId: p1.id,
-      visitId: v1Past.id,
+      visitId: v1.id,
       consultationFee: 500,
-      procedureFee: 100,
+      procedureFee: 0,
       medicineFee: 0,
       discount: 0,
-      totalAmount: 600,
-      paidAmount: 600,
+      totalAmount: 500,
+      paidAmount: 500,
       paymentMethod: 'UPI',
       paymentStatus: 'PAID',
     },
   });
 
-  // Today's Queue Visits
-  // Token 1: With Doctor (P1 today)
-  const v1Today = await prisma.visit.create({
-    data: {
-      tokenNo: 1,
-      patientId: p1.id,
-      doctorId: drRajesh.id,
-      visitDate: new Date(),
-      visitType: 'FOLLOW_UP',
-      status: 'IN_CONSULTATION',
-      chiefComplaints: 'Follow-up for diabetes & BP review',
-      diagnosis: 'Type 2 DM - Improving with medication',
-      doctorNotes: 'Fasting sugar improved to 135 mg/dL. Continue same dosage.',
-      nextFollowUpDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    },
-  });
-
-  await prisma.vital.create({
-    data: {
-      visitId: v1Today.id,
-      bpSystolic: 128,
-      bpDiastolic: 84,
-      pulseRate: 74,
-      weight: 77.0,
-      temperature: 98.6,
-      spo2: 99,
-      bloodSugar: 135,
-    },
-  });
-
-  await prisma.prescription.create({
-    data: {
-      visitId: v1Today.id,
-      prescriptionType: 'PHOTO_UPLOAD',
-      photoUrl: sampleRxPhotoSvg,
-      digitalRxJson: JSON.stringify([
-        { name: 'Tab Metformin 500mg', dosage: '1-0-1', timing: 'After Meals', duration: '30 days' },
-        { name: 'Tab Telmisartan 40mg', dosage: '1-0-0', timing: 'Morning', duration: '30 days' },
-      ]),
-      instructions: 'Continue regular exercise. Routine HbA1c test next month.',
-    },
-  });
-
-  await prisma.invoice.create({
-    data: {
-      invoiceNo: 'INV-2026-0002',
-      patientId: p1.id,
-      visitId: v1Today.id,
-      consultationFee: 300,
-      procedureFee: 0,
-      medicineFee: 0,
-      discount: 0,
-      totalAmount: 300,
-      paidAmount: 300,
-      paymentMethod: 'CASH',
-      paymentStatus: 'PAID',
-    },
-  });
-
-  // Token 2: Waiting (P2)
-  const v2Today = await prisma.visit.create({
+  // Token 2: Waiting (Rajesh Verma)
+  const v2 = await prisma.visit.create({
     data: {
       tokenNo: 2,
       patientId: p2.id,
-      doctorId: drRajesh.id,
+      doctorId: drAmitabh.id,
       visitDate: new Date(),
       visitType: 'NEW_VISIT',
       status: 'WAITING',
-      chiefComplaints: 'Severe dry cough, throat irritation, mild fever for 2 days',
+      chiefComplaints: 'Scaly plaques on elbows and scalp with mild pruritus',
     },
   });
 
   await prisma.vital.create({
     data: {
-      visitId: v2Today.id,
-      bpSystolic: 118,
-      bpDiastolic: 78,
-      pulseRate: 80,
-      weight: 56.0,
-      temperature: 100.2,
+      visitId: v2.id,
+      bpSystolic: 120,
+      bpDiastolic: 80,
+      pulseRate: 72,
+      weight: 74.0,
+      temperature: 98.4,
       spo2: 98,
     },
   });
 
-  // Token 3: Waiting (P3)
-  const v3Today = await prisma.visit.create({
+  // Token 3: Waiting (Sunita Devi)
+  const v3 = await prisma.visit.create({
     data: {
       tokenNo: 3,
       patientId: p3.id,
-      doctorId: drPriya.id,
+      doctorId: drAmitabh.id,
       visitDate: new Date(),
       visitType: 'NEW_VISIT',
       status: 'WAITING',
-      chiefComplaints: 'Chest discomfort on exertion, breathlessness',
+      chiefComplaints: 'Severe burning and redness on facial skin after cosmetic use',
     },
   });
 
-  await prisma.vital.create({
-    data: {
-      visitId: v3Today.id,
-      bpSystolic: 138,
-      bpDiastolic: 88,
-      pulseRate: 88,
-      weight: 72.0,
-      temperature: 98.6,
-      spo2: 97,
-    },
-  });
-
-  // Token 4: Waiting (P4)
-  const v4Today = await prisma.visit.create({
+  // Token 4: Waiting (Vikas Pandey)
+  const v4 = await prisma.visit.create({
     data: {
       tokenNo: 4,
       patientId: p4.id,
-      doctorId: drRajesh.id,
+      doctorId: drAmitabh.id,
       visitDate: new Date(),
-      visitType: 'FOLLOW_UP',
+      visitType: 'NEW_VISIT',
       status: 'WAITING',
-      chiefComplaints: 'Bilateral knee pain, morning stiffness',
+      chiefComplaints: 'Ring-shaped itchy patches on groin and torso for 3 weeks',
     },
   });
 
-  // Add Lab Report for P1
+  // Lab Report for P1
   await prisma.labReport.create({
     data: {
       patientId: p1.id,
-      visitId: v1Past.id,
-      testName: 'Complete Blood Count (CBC) & HbA1c',
+      visitId: v1.id,
+      testName: 'Complete Blood Count (CBC) & Absolute Eosinophil Count (AEC)',
       testCategory: 'PATHOLOGY',
-      reportFileUrl: sampleRxPhotoSvg,
+      reportFileUrl: '',
       fileType: 'IMAGE',
-      labName: 'Arogya Pathology Lab',
-      notes: 'HbA1c: 7.8% (Borderline elevated), TLC: 7,200',
+      labName: 'Skin & HIV Care In-House Diagnostic Lab',
+      notes: 'AEC: 480 cells/mcL (Mild eosinophilia noted)',
     },
   });
 
-  console.log('✅ Database seeded successfully with 4 patients, 5 visits, vitals, invoices, prescriptions, and doctors!');
+  console.log('✅ Database seeded successfully for Skin & HIV Care Clinic - Dr. Amitabh Upadhyay!');
 }
 
 main()

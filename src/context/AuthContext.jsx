@@ -6,11 +6,11 @@ import { useRouter, usePathname } from 'next/navigation';
 const AuthContext = createContext(null);
 
 export const DEFAULT_ADMIN = {
-  email: 'admin@arogyacare.com',
+  email: 'admin@skinandhivcare.com',
   password: 'admin123',
-  name: 'Clinic Administrator',
+  name: 'Dr. Amitabh Upadhyay / Desk',
   role: 'SUPER_ADMIN',
-  clinic: 'ArogyaCare Multi-Specialty OPD',
+  clinic: 'Skin & HIV Care Clinic',
 };
 
 export function AuthProvider({ children }) {
@@ -21,12 +21,12 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check local session
-    const stored = localStorage.getItem('arogya_admin_session');
+    const stored = localStorage.getItem('clinic_admin_session') || localStorage.getItem('arogya_admin_session');
     if (stored) {
       try {
         setUser(JSON.parse(stored));
       } catch (e) {
-        localStorage.removeItem('arogya_admin_session');
+        localStorage.removeItem('clinic_admin_session');
       }
     }
     setLoading(false);
@@ -36,7 +36,9 @@ export function AuthProvider({ children }) {
     const trimmedEmail = email.trim().toLowerCase();
     // Validate credentials
     if (
-      (trimmedEmail === DEFAULT_ADMIN.email.toLowerCase() || trimmedEmail === 'admin') &&
+      (trimmedEmail === DEFAULT_ADMIN.email.toLowerCase() ||
+        trimmedEmail === 'admin@arogyacare.com' ||
+        trimmedEmail === 'admin') &&
       password === DEFAULT_ADMIN.password
     ) {
       const sessionUser = {
@@ -46,15 +48,16 @@ export function AuthProvider({ children }) {
         clinic: DEFAULT_ADMIN.clinic,
         loginAt: new Date().toISOString(),
       };
-      localStorage.setItem('arogya_admin_session', JSON.stringify(sessionUser));
+      localStorage.setItem('clinic_admin_session', JSON.stringify(sessionUser));
       setUser(sessionUser);
       return { success: true };
     }
 
-    return { success: false, error: 'Invalid admin email or password. Default: admin@arogyacare.com / admin123' };
+    return { success: false, error: 'Invalid credentials. Default: admin@skinandhivcare.com / admin123' };
   };
 
   const logout = () => {
+    localStorage.removeItem('clinic_admin_session');
     localStorage.removeItem('arogya_admin_session');
     setUser(null);
     router.push('/login');

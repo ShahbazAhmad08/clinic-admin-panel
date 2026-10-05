@@ -26,6 +26,7 @@ import { formatDate, formatCurrency } from '@/lib/utils';
 import PatientTimeline from '@/components/PatientTimeline';
 import PatientModal from '@/components/PatientModal';
 import QuickQueueModal from '@/components/QuickQueueModal';
+import PrescriptionSlipModal from '@/components/PrescriptionSlipModal';
 
 export default function PatientDetailPage() {
   const { id } = useParams();
@@ -36,6 +37,8 @@ export default function PatientDetailPage() {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [selectedVisitForPrint, setSelectedVisitForPrint] = useState(null);
 
   useEffect(() => {
     loadPatientData();
@@ -59,7 +62,7 @@ export default function PatientDetailPage() {
   if (loading) {
     return (
       <div className="p-16 text-center">
-        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-sm text-slate-400">Loading Patient Electronic Health Record...</p>
       </div>
     );
@@ -67,12 +70,12 @@ export default function PatientDetailPage() {
 
   if (!patient) {
     return (
-      <div className="p-12 text-center bg-slate-900 border border-slate-800 rounded-3xl">
+      <div className="p-12 text-center bg-[#0b1329] border border-slate-800 rounded-3xl">
         <h3 className="text-lg font-bold text-white mb-2">Patient Not Found</h3>
         <p className="text-xs text-slate-400 mb-6">The requested patient record does not exist.</p>
         <Link
           href="/patients"
-          className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-xl"
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl"
         >
           Back to Directory
         </Link>
@@ -91,13 +94,15 @@ export default function PatientDetailPage() {
       }))
     );
 
+  const latestVisit = patient.visits?.[0];
+
   return (
     <div className="space-y-6">
       {/* Back Button */}
       <div>
         <Link
           href="/patients"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-cyan-400 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-blue-400 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Patients Directory</span>
@@ -105,16 +110,16 @@ export default function PatientDetailPage() {
       </div>
 
       {/* Patient Profile Card Header */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
+      <div className="bg-[#0b1329]/90 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-cyan-600/20">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-700 flex items-center justify-center text-white font-extrabold text-2xl shadow-xl shadow-blue-700/25">
               {patient.name?.charAt(0)}
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-xl md:text-2xl font-black text-white">{patient.name}</h1>
-                <span className="px-2.5 py-0.5 rounded-lg bg-cyan-500/10 text-cyan-300 font-mono font-bold text-xs border border-cyan-500/30">
+                <h1 className="text-xl md:text-2xl font-black text-white font-serif">{patient.name}</h1>
+                <span className="px-2.5 py-0.5 rounded-lg bg-blue-500/10 text-blue-300 font-mono font-bold text-xs border border-blue-500/30">
                   {patient.uhid}
                 </span>
               </div>
@@ -128,7 +133,19 @@ export default function PatientDetailPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {/* 1-Click Print Parcha Button */}
+            <button
+              onClick={() => {
+                setSelectedVisitForPrint(latestVisit);
+                setIsPrintModalOpen(true);
+              }}
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-blue-700/25 active:scale-95 transition-all"
+            >
+              <Printer className="w-4 h-4" />
+              <span>Print OPD Parcha (पर्चा प्रिंट करें)</span>
+            </button>
+
             <button
               onClick={() => setIsEditModalOpen(true)}
               className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all"
@@ -163,11 +180,11 @@ export default function PatientDetailPage() {
             )}
 
             {patient.chronicDiseases && (
-              <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs flex items-start gap-2.5">
-                <Heart className="w-4 h-4 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-start gap-2.5">
+                <Heart className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <strong className="block font-bold text-cyan-400 uppercase tracking-wide text-[10px]">
-                    Chronic Medical Conditions
+                  <strong className="block font-bold text-blue-400 uppercase tracking-wide text-[10px]">
+                    Chronic Condition / Medical History
                   </strong>
                   <span>{patient.chronicDiseases}</span>
                 </div>
@@ -175,99 +192,99 @@ export default function PatientDetailPage() {
             )}
           </div>
         )}
-
-        {/* Additional Info Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
-          <div>
-            <span className="text-[10px] text-slate-400 block uppercase">Address / City</span>
-            <span className="font-semibold text-slate-200">{patient.address || 'Not Provided'}</span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 block uppercase">Emergency Contact</span>
-            <span className="font-semibold text-slate-200">{patient.emergencyContact || 'None'}</span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 block uppercase">First Registered</span>
-            <span className="font-semibold text-slate-200">{formatDate(patient.createdAt)}</span>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-400 block uppercase">Total Consultations</span>
-            <span className="font-semibold text-cyan-400 font-mono">
-              {patient.visits?.length || 0} Visits
-            </span>
-          </div>
-        </div>
       </div>
 
-      {/* Tabs Switcher */}
-      <div className="flex items-center gap-2 border-b border-slate-800">
+      {/* Tabs Navigation */}
+      <div className="flex items-center gap-2 border-b border-slate-800 pb-2 overflow-x-auto">
         {[
-          { id: 'TIMELINE', label: `Visits & Clinical Timeline (${patient.visits?.length || 0})`, icon: Calendar },
-          { id: 'PRESCRIPTIONS', label: `Prescription Photos (${allPrescriptions.length})`, icon: FileImage },
-          { id: 'LAB', label: `Lab Reports (${patient.labReports?.length || 0})`, icon: FlaskConical },
-          { id: 'BILLING', label: `Invoices & Receipts (${patient.invoices?.length || 0})`, icon: Receipt },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 px-4 text-xs md:text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
-                activeTab === tab.id
-                  ? 'border-cyan-400 text-cyan-300 font-bold'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
+          { id: 'TIMELINE', label: `Visits Timeline (${patient.visits?.length || 0})` },
+          { id: 'PRESCRIPTIONS', label: `Prescriptions (${allPrescriptions.length})` },
+          { id: 'LAB', label: `Lab Reports (${patient.labReports?.length || 0})` },
+          { id: 'BILLING', label: `Invoices & Billing (${patient.invoices?.length || 0})` },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+              activeTab === tab.id
+                ? 'bg-blue-600/20 text-blue-300 border border-blue-500/40 shadow-sm'
+                : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tab Content */}
-      {activeTab === 'TIMELINE' && <PatientTimeline visits={patient.visits || []} />}
+      {/* Tab Contents */}
+      {activeTab === 'TIMELINE' && (
+        <PatientTimeline
+          visits={patient.visits || []}
+          onRefresh={loadPatientData}
+        />
+      )}
 
-      {/* Prescription Gallery Tab */}
       {activeTab === 'PRESCRIPTIONS' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {allPrescriptions.map((rx, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {allPrescriptions.map((rx, idx) => (
             <div
-              key={i}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 overflow-hidden"
+              key={rx.id || idx}
+              className="bg-[#0b1329]/80 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg"
             >
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-slate-200">{formatDate(rx.visitDate)}</span>
-                <span className="text-[11px] text-cyan-400">{rx.doctor?.name}</span>
-              </div>
-
-              {rx.photoUrl ? (
-                <div className="relative rounded-xl overflow-hidden border border-slate-800 bg-black aspect-[3/4] flex items-center justify-center group cursor-pointer">
-                  <img
-                    src={rx.photoUrl}
-                    alt="Prescription Photo"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold">
-                    Click to Open
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold font-mono text-xs flex items-center justify-center">
+                    #{rx.tokenNo || idx + 1}
+                  </span>
+                  <div>
+                    <p className="text-xs font-bold text-white">
+                      {formatDate(rx.visitDate || rx.createdAt)}
+                    </p>
+                    <p className="text-[11px] text-slate-400">Dr. Amitabh Upadhyay</p>
                   </div>
                 </div>
-              ) : (
-                <div className="p-6 bg-slate-950 rounded-xl text-center text-xs text-slate-500">
-                  Digital Prescription Only (No photo)
+
+                <button
+                  onClick={() => {
+                    setSelectedVisitForPrint({
+                      ...rx,
+                      patient,
+                      prescriptions: [rx],
+                    });
+                    setIsPrintModalOpen(true);
+                  }}
+                  className="px-3 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold flex items-center gap-1"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Slip</span>
+                </button>
+              </div>
+
+              {rx.digitalRxJson && (
+                <div className="space-y-2 text-xs">
+                  {JSON.parse(rx.digitalRxJson).map((med, mIdx) => (
+                    <div key={mIdx} className="flex justify-between bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                      <div>
+                        <span className="font-semibold text-slate-200">{med.name}</span>
+                        <p className="text-[10px] text-slate-400">{med.dosage} ({med.timing})</p>
+                      </div>
+                      <span className="font-mono text-slate-400">{med.duration}</span>
+                    </div>
+                  ))}
                 </div>
               )}
 
-              {rx.diagnosis && (
-                <p className="text-xs text-slate-300 font-medium">
-                  <strong>Diagnosis:</strong> {rx.diagnosis}
+              {rx.instructions && (
+                <p className="text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800 italic">
+                  "{rx.instructions}"
                 </p>
               )}
             </div>
           ))}
+
           {allPrescriptions.length === 0 && (
-            <div className="col-span-3 p-12 text-center text-xs text-slate-500">
-              No prescriptions uploaded for this patient yet.
+            <div className="col-span-full p-12 text-center text-slate-500 bg-[#0b1329]/40 border border-slate-800 rounded-2xl">
+              No prescriptions recorded yet.
             </div>
           )}
         </div>
@@ -276,26 +293,32 @@ export default function PatientDetailPage() {
       {/* Lab Reports Tab */}
       {activeTab === 'LAB' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(patient.labReports || []).map((lab) => (
+          {patient.labReports?.map((rep) => (
             <div
-              key={lab.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3"
+              key={rep.id}
+              className="bg-[#0b1329]/80 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-lg"
             >
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-bold text-white">{lab.testName}</h4>
-                <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 text-[10px] font-bold">
-                  {lab.testCategory}
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30">
+                  {rep.testCategory}
+                </span>
+                <span className="text-xs text-slate-400 font-mono">
+                  {formatDate(rep.testDate)}
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Date: {formatDate(lab.testDate)} • Lab: {lab.labName}
-              </p>
-              {lab.notes && <p className="text-xs text-slate-300 italic">{lab.notes}</p>}
+              <h4 className="text-sm font-bold text-white">{rep.testName}</h4>
+              <p className="text-xs text-slate-400">Lab: {rep.labName}</p>
+              {rep.notes && (
+                <p className="text-xs text-slate-300 bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                  {rep.notes}
+                </p>
+              )}
             </div>
           ))}
-          {(patient.labReports || []).length === 0 && (
-            <div className="col-span-2 p-12 text-center text-xs text-slate-500">
-              No lab or diagnostic reports uploaded yet.
+
+          {(!patient.labReports || patient.labReports.length === 0) && (
+            <div className="col-span-full p-12 text-center text-slate-500 bg-[#0b1329]/40 border border-slate-800 rounded-2xl">
+              No diagnostic lab reports uploaded for this patient.
             </div>
           )}
         </div>
@@ -304,31 +327,43 @@ export default function PatientDetailPage() {
       {/* Invoices Tab */}
       {activeTab === 'BILLING' && (
         <div className="space-y-3">
-          {(patient.invoices || []).map((inv) => (
+          {patient.invoices?.map((inv) => (
             <div
               key={inv.id}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between text-xs"
+              className="bg-[#0b1329]/80 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4"
             >
               <div>
-                <span className="font-bold text-slate-100 font-mono">{inv.invoiceNo}</span>
-                <p className="text-[11px] text-slate-400">{formatDate(inv.createdAt)}</p>
+                <span className="text-xs font-mono font-bold text-blue-400">{inv.invoiceNo}</span>
+                <p className="text-xs text-slate-400 mt-0.5">{formatDate(inv.createdAt)} • {inv.paymentMethod}</p>
               </div>
-              <div className="text-right font-mono">
-                <span className="text-sm font-bold text-emerald-400">
+
+              <div className="flex items-center gap-4">
+                <span className="text-base font-bold font-mono text-emerald-400">
                   {formatCurrency(inv.totalAmount)}
                 </span>
-                <p className="text-[10px] text-slate-400 uppercase">
-                  {inv.paymentMethod} • {inv.paymentStatus}
-                </p>
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  {inv.paymentStatus}
+                </span>
               </div>
             </div>
           ))}
-          {(patient.invoices || []).length === 0 && (
-            <div className="p-12 text-center text-xs text-slate-500">
-              No billing records found.
+
+          {(!patient.invoices || patient.invoices.length === 0) && (
+            <div className="p-12 text-center text-slate-500 bg-[#0b1329]/40 border border-slate-800 rounded-2xl">
+              No billing records generated yet.
             </div>
           )}
         </div>
+      )}
+
+      {/* Prescription Slip Print Modal */}
+      {isPrintModalOpen && (
+        <PrescriptionSlipModal
+          isOpen={isPrintModalOpen}
+          patientData={patient}
+          visitData={selectedVisitForPrint || latestVisit}
+          onClose={() => setIsPrintModalOpen(false)}
+        />
       )}
 
       {/* Edit Patient Modal */}
@@ -344,14 +379,15 @@ export default function PatientDetailPage() {
         />
       )}
 
-      {/* Generate Token Modal */}
+      {/* Quick Queue Issue Token Modal */}
       {isQueueModalOpen && (
         <QuickQueueModal
           isOpen={isQueueModalOpen}
+          initialPatientId={patient.id}
           onClose={() => setIsQueueModalOpen(false)}
           onSuccess={() => {
             setIsQueueModalOpen(false);
-            router.push('/queue');
+            loadPatientData();
           }}
         />
       )}

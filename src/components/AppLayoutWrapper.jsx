@@ -11,7 +11,7 @@ export default function AppLayoutWrapper({ children }) {
   const router = useRouter();
   const { isAuthenticated, loading } = useAuth();
 
-  const isPublicRoute = pathname === '/login' || pathname === '/display';
+  const isPublicRoute = pathname === '/login';
 
   useEffect(() => {
     if (!loading && !isAuthenticated && !isPublicRoute) {
@@ -21,14 +21,14 @@ export default function AppLayoutWrapper({ children }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-[#0b0f19] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-slate-400 text-xs mt-4 font-medium tracking-wide">Loading ArogyaCare Clinic Desk...</p>
+      <div className="min-h-screen w-full bg-[#080d1a] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-slate-400 text-xs mt-4 font-medium tracking-wide">Loading Skin & HIV Care Clinic Desk...</p>
       </div>
     );
   }
 
-  // If on login or display screen, render full screen without admin shell
+  // If on login screen, render full screen without admin shell
   if (isPublicRoute) {
     return <>{children}</>;
   }
@@ -36,8 +36,8 @@ export default function AppLayoutWrapper({ children }) {
   // If not authenticated and not public route, show loading while redirecting
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen w-full bg-[#0b0f19] flex items-center justify-center">
-        <div className="w-8 h-8 border-3 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen w-full bg-[#080d1a] flex items-center justify-center">
+        <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }

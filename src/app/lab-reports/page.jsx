@@ -13,21 +13,39 @@ import {
   Plus,
   Check,
   AlertCircle,
+  X,
+  FileImage,
+  ShieldCheck,
 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+
+const TEST_PRESETS = [
+  'Complete Blood Count (CBC) & AEC',
+  'CD4 / CD8 Absolute Count',
+  'HIV 1 & 2 Antibody / Viral Load',
+  'Skin Scraping for Fungus (KOH Mount)',
+  'Skin Biopsy & Histopathology',
+  'Liver Function Test (LFT)',
+  'Kidney Function Test (KFT / RFT)',
+  'Serum IgE Level (Allergy Panel)',
+  'VDRL / RPR Syphilis Serology',
+  'Blood Sugar (Fasting & PP)',
+];
 
 export default function LabReportsPage() {
   const [reports, setReports] = useState([]);
   const [patients, setPatients] = useState([]);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [selectedReportView, setSelectedReportView] = useState(null);
 
   // Upload state
   const [selectedPatientId, setSelectedPatientId] = useState('');
   const [testName, setTestName] = useState('');
-  const [testCategory, setTestCategory] = useState('PATHOLOGY');
-  const [labName, setLabName] = useState('Arogya Pathology Lab');
+  const [testCategory, setTestCategory] = useState('DERMATOLOGY');
+  const [labName, setLabName] = useState('Skin & HIV Care Diagnostic Center');
   const [reportFileBase64, setReportFileBase64] = useState('');
   const [notes, setNotes] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -48,6 +66,9 @@ export default function LabReportsPage() {
       const pData = await pRes.json();
       setReports(rData.labReports || []);
       setPatients(pData.patients || []);
+      if (pData.patients?.length > 0 && !selectedPatientId) {
+        setSelectedPatientId(pData.patients[0].id);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -67,8 +88,12 @@ export default function LabReportsPage() {
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
-    if (!reportFileBase64) {
-      setError('Please select a report image or PDF file to upload.');
+    if (!selectedPatientId) {
+      setError('Please select a patient.');
+      return;
+    }
+    if (!testName) {
+      setError('Please specify or select a test name.');
       return;
     }
 
@@ -84,8 +109,8 @@ export default function LabReportsPage() {
           testName,
           testCategory,
           labName,
-          reportFileUrl: reportFileBase64,
-          fileType: 'IMAGE',
+          reportFileUrl: reportFileBase64 || '',
+          fileType: reportFileBase64?.startsWith('data:application/pdf') ? 'PDF' : 'IMAGE',
           notes,
         }),
       });
@@ -105,231 +130,336 @@ export default function LabReportsPage() {
     }
   };
 
-  const filtered = reports.filter(
-    (r) =>
+  const filtered = reports.filter((r) => {
+    const matchesCategory = categoryFilter === 'ALL' || r.testCategory === categoryFilter;
+    const matchesSearch =
       r.testName?.toLowerCase().includes(search.toLowerCase()) ||
       r.patient?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      r.patient?.uhid?.toLowerCase().includes(search.toLowerCase())
-  );
+      r.patient?.uhid?.toLowerCase().includes(search.toLowerCase()) ||
+      r.notes?.toLowerCase().includes(search.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0b1329]/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
             <FlaskConical className="w-3.5 h-3.5" />
-            Diagnostics & Pathology Records
+            Diagnostics & Pathology Records • Dr. Amitabh Upadhyay
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">
-            Lab & Diagnostic Reports Archive
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white font-serif">
+            Specialized Lab & Pathology Reports
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Store and access blood tests, X-rays, ECG, and pathology results.
+            Manage Dermatology, HIV / Immunology, and routine diagnostic laboratory reports.
           </p>
         </div>
 
         <button
           onClick={() => setIsUploadModalOpen(true)}
-          className="px-5 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-cyan-600/20 active:scale-95"
+          className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-700/25 active:scale-95"
         >
           <UploadCloud className="w-4 h-4" />
-          <span>Upload New Lab Report</span>
+          <span>Upload Lab Report</span>
         </button>
       </div>
 
-      {/* Search */}
-      <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      {/* Filter Tabs & Search */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0b1329]/60 p-4 rounded-2xl border border-slate-800">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+          {[
+            { id: 'ALL', label: `All Reports (${reports.length})` },
+            { id: 'DERMATOLOGY', label: 'Skin & Dermatology' },
+            { id: 'IMMUNOLOGY', label: 'HIV & Immunology' },
+            { id: 'PATHOLOGY', label: 'Blood & Pathology' },
+            { id: 'BIOCHEMISTRY', label: 'Biochemistry' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setCategoryFilter(tab.id)}
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                categoryFilter === tab.id
+                  ? 'bg-blue-600/25 text-blue-300 border border-blue-500/40 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search by test name, patient, UHID..."
+            placeholder="Search test, patient, UHID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500"
           />
         </div>
-        <span className="text-xs text-slate-400">
-          Showing <strong className="text-cyan-400">{filtered.length}</strong> Reports
-        </span>
       </div>
 
       {/* Reports Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((r) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map((rep) => (
           <div
-            key={r.id}
-            className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4 hover:border-cyan-500/40 transition-all flex flex-col justify-between"
+            key={rep.id}
+            className="bg-[#0b1329]/90 border border-slate-800 hover:border-slate-700 rounded-2xl p-5 shadow-lg space-y-4 transition-all"
           >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <span className="px-2.5 py-0.5 rounded-lg bg-cyan-500/10 text-cyan-300 font-bold text-[11px] border border-cyan-500/30">
-                  {r.testCategory}
-                </span>
-                <span className="text-xs text-slate-400">{formatDate(r.testDate)}</span>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-bold text-white">{r.testName}</h4>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Lab: <span className="text-slate-200">{r.labName}</span>
-                </p>
-              </div>
-
-              <div className="bg-slate-950/60 p-3 rounded-2xl border border-slate-800 text-xs">
-                <p className="text-slate-400 font-semibold mb-1">Patient Details:</p>
-                <Link
-                  href={`/patients/${r.patient?.id}`}
-                  className="font-bold text-slate-100 hover:text-cyan-400 transition-colors block"
-                >
-                  {r.patient?.name} ({r.patient?.uhid})
-                </Link>
-                <p className="text-slate-500 text-[11px] mt-0.5">📞 {r.patient?.phone}</p>
-              </div>
-
-              {r.notes && (
-                <p className="text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                  <strong>Notes:</strong> {r.notes}
-                </p>
-              )}
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/30">
+                {rep.testCategory}
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                {formatDate(rep.testDate)}
+              </span>
             </div>
 
-            <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
-              <Link
-                href={`/patients/${r.patient?.id}`}
-                className="text-cyan-400 hover:text-cyan-300 font-semibold"
-              >
-                View Patient History ➔
-              </Link>
+            <div>
+              <h3 className="text-base font-bold text-white line-clamp-1">{rep.testName}</h3>
+              <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-blue-400" />
+                <Link
+                  href={`/patients/${rep.patient?.id}`}
+                  className="font-semibold text-slate-200 hover:text-blue-400"
+                >
+                  {rep.patient?.name}
+                </Link>
+                <span className="font-mono text-blue-400">({rep.patient?.uhid})</span>
+              </p>
+            </div>
+
+            {rep.notes && (
+              <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800/80 text-xs text-slate-300">
+                <span className="text-[10px] font-bold text-slate-400 block mb-0.5">Test Findings:</span>
+                <p className="font-mono">{rep.notes}</p>
+              </div>
+            )}
+
+            <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+              <span className="truncate max-w-[180px]">Lab: {rep.labName || 'In-House'}</span>
+              {rep.reportFileUrl ? (
+                <button
+                  onClick={() => setSelectedReportView(rep)}
+                  className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl font-semibold flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>View Doc</span>
+                </button>
+              ) : (
+                <span className="text-slate-500 italic text-[11px]">Values logged</span>
+              )}
             </div>
           </div>
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <div className="p-16 bg-slate-900/40 border border-slate-800 rounded-3xl text-center text-slate-500 text-xs">
-          No lab reports found. Click "Upload New Lab Report" to attach test files.
+        <div className="p-16 text-center text-slate-500 bg-[#0b1329]/40 border border-slate-800 rounded-2xl">
+          <FlaskConical className="w-10 h-10 mx-auto mb-3 text-slate-600" />
+          <h4 className="text-sm font-semibold text-slate-300">No diagnostic reports found</h4>
+          <p className="text-xs text-slate-500 mt-1">Upload a new test report for any registered patient.</p>
         </div>
       )}
 
       {/* Upload Modal */}
       {isUploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-6 space-y-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <FlaskConical className="w-5 h-5 text-cyan-400" /> Upload Diagnostic / Lab Report
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-8">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
+              <div className="flex items-center gap-2.5">
+                <FlaskConical className="w-5 h-5 text-blue-400" />
+                <h3 className="text-base font-bold text-white">Upload Diagnostic Lab Report</h3>
+              </div>
+              <button
+                onClick={() => setIsUploadModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             {error && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                <span>{error}</span>
+              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                {error}
               </div>
             )}
 
-            <form onSubmit={handleUploadSubmit} className="space-y-4">
+            <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
+              {/* Select Patient */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Select Patient *
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Select Patient <span className="text-rose-400">*</span>
                 </label>
                 <select
-                  required
                   value={selectedPatientId}
                   onChange={(e) => setSelectedPatientId(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-cyan-500"
+                  required
+                  className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
                 >
-                  <option value="">-- Choose Patient --</option>
                   {patients.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} ({p.uhid}) • {p.phone}
+                      {p.name} ({p.uhid}) - 📞 {p.phone}
                     </option>
                   ))}
                 </select>
               </div>
 
+              {/* Quick Presets */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Test / Investigation Name *
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Common Test Presets (Quick Select)
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Complete Blood Count (CBC), Lipid Profile, Chest X-Ray"
-                  value={testName}
-                  onChange={(e) => setTestName(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
-                />
+                <div className="flex flex-wrap gap-1.5">
+                  {TEST_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setTestName(preset);
+                        if (preset.includes('HIV') || preset.includes('CD4')) {
+                          setTestCategory('IMMUNOLOGY');
+                        } else if (preset.includes('Skin') || preset.includes('IgE')) {
+                          setTestCategory('DERMATOLOGY');
+                        } else {
+                          setTestCategory('PATHOLOGY');
+                        }
+                      }}
+                      className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-blue-600/30 text-slate-300 hover:text-blue-300 border border-slate-700 transition-all"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              {/* Test Name & Category */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Test Name <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={testName}
+                    onChange={(e) => setTestName(e.target.value)}
+                    placeholder="e.g. CD4 Count / Skin Biopsy"
+                    className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Category</label>
                   <select
                     value={testCategory}
                     onChange={(e) => setTestCategory(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
+                    className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
                   >
-                    <option value="PATHOLOGY">Pathology (Blood/Urine)</option>
-                    <option value="RADIOLOGY">Radiology (X-Ray/MRI/USG)</option>
+                    <option value="DERMATOLOGY">Skin & Dermatology</option>
+                    <option value="IMMUNOLOGY">HIV & Immunology</option>
+                    <option value="PATHOLOGY">Pathology / Blood</option>
                     <option value="BIOCHEMISTRY">Biochemistry</option>
-                    <option value="CARDIOLOGY">ECG / Cardiology</option>
+                    <option value="OTHER">Other Diagnostic</option>
                   </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Lab Center</label>
-                  <input
-                    type="text"
-                    value={labName}
-                    onChange={(e) => setLabName(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-100"
-                  />
                 </div>
               </div>
 
+              {/* Lab Name */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Upload Report File (JPG, PNG, PDF) *
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Laboratory Name</label>
+                <input
+                  type="text"
+                  value={labName}
+                  onChange={(e) => setLabName(e.target.value)}
+                  className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              {/* File Attachment */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Attach Report File (Image / Scan / PDF)
                 </label>
                 <input
                   type="file"
-                  required
                   accept="image/*,application/pdf"
                   onChange={handleFileUpload}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-300"
+                  className="w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer"
                 />
               </div>
 
+              {/* Notes */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Findings / Doctor's Notes
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Test Results / Values / Doctor Interpretation
                 </label>
                 <textarea
-                  rows={2}
-                  placeholder="e.g. Hemoglobin normal, elevated TLC"
+                  rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-100 placeholder-slate-400"
+                  placeholder="e.g. CD4 Absolute Count: 520 cells/mcL. Normal range. No opportunistic infection."
+                  className="w-full bg-slate-950/70 border border-slate-700 rounded-xl px-3.5 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div className="pt-2 flex items-center justify-end gap-3">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsUploadModalOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-400 hover:text-slate-200"
+                  className="px-4 py-2 text-xs text-slate-400 hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={uploading}
-                  className="px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs rounded-xl flex items-center gap-2"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-blue-700/25 disabled:opacity-50"
                 >
-                  {uploading ? 'Uploading...' : 'Save Report'}
+                  {uploading ? 'Saving...' : 'Save Report'}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Document Modal */}
+      {selectedReportView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-white">{selectedReportView.testName}</h3>
+                <p className="text-xs text-slate-400">{selectedReportView.patient?.name} ({selectedReportView.patient?.uhid})</p>
+              </div>
+              <button
+                onClick={() => setSelectedReportView(null)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {selectedReportView.reportFileUrl && (
+              <div className="max-h-[500px] overflow-auto rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center p-4">
+                <img
+                  src={selectedReportView.reportFileUrl}
+                  alt={selectedReportView.testName}
+                  className="max-h-[450px] object-contain rounded-lg"
+                />
+              </div>
+            )}
+
+            {selectedReportView.notes && (
+              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
+                <span className="font-bold text-slate-400 block mb-1">Interpretation:</span>
+                <p>{selectedReportView.notes}</p>
+              </div>
+            )}
           </div>
         </div>
       )}

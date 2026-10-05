@@ -10,7 +10,7 @@ import {
   Activity,
   Receipt,
   FileImage,
-  CheckCircle2,
+  Printer,
   RefreshCw,
   Phone,
   Calendar,
@@ -23,6 +23,7 @@ import {
 import { formatTime, formatDate, getStatusBadge, formatCurrency } from '@/lib/utils';
 import QuickQueueModal from '@/components/QuickQueueModal';
 import PrescriptionUploadModal from '@/components/PrescriptionUploadModal';
+import PrescriptionSlipModal from '@/components/PrescriptionSlipModal';
 import VitalsModal from '@/components/VitalsModal';
 import BillingModal from '@/components/BillingModal';
 
@@ -37,6 +38,7 @@ export default function QueuePage() {
   const [selectedVisitForRx, setSelectedVisitForRx] = useState(null);
   const [selectedVisitForVitals, setSelectedVisitForVitals] = useState(null);
   const [selectedVisitForBill, setSelectedVisitForBill] = useState(null);
+  const [selectedVisitForPrint, setSelectedVisitForPrint] = useState(null);
 
   useEffect(() => {
     loadVisits();
@@ -81,31 +83,24 @@ export default function QueuePage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0b1329]/90 p-6 rounded-3xl border border-slate-800 shadow-xl">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
             <Clock className="w-3.5 h-3.5" />
-            Live Reception OPD Counter
+            Live OPD Counter • Dr. Amitabh Upadhyay
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">
-            Daily OPD Queue Management
+          <h1 className="text-2xl md:text-3xl font-extrabold text-white font-serif">
+            Daily OPD Queue & Token Desk
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Real-time token management for Receptionist & Doctor's Assistant.
+            Real-time token management, 1-click Prescription slip (पर्चा) print, and consultation tracker.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/display"
-            target="_blank"
-            className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-2xl text-xs md:text-sm font-semibold flex items-center gap-2"
-          >
-            <span>📺 Waiting TV View</span>
-          </Link>
           <button
             onClick={() => setIsQueueModalOpen(true)}
-            className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-amber-500/20 active:scale-95"
+            className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-xs md:text-sm rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-700/25 active:scale-95"
           >
             <Clock className="w-4 h-4" />
             <span>Generate Token #</span>
@@ -114,7 +109,7 @@ export default function QueuePage() {
       </div>
 
       {/* Filter Tabs & Search Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0b1329]/60 p-4 rounded-2xl border border-slate-800">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {[
             { id: 'ALL', label: `All Tokens (${visits.length})` },
@@ -136,7 +131,7 @@ export default function QueuePage() {
               onClick={() => setFilter(tab.id)}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
                 filter === tab.id
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                  ? 'bg-blue-600/25 text-blue-300 border border-blue-500/40 shadow-sm'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
               }`}
             >
@@ -149,10 +144,10 @@ export default function QueuePage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Search token, name, phone..."
+            placeholder="Search token, patient name, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-cyan-500"
+            className="w-full bg-slate-950/70 border border-slate-700/70 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500"
           />
         </div>
       </div>
@@ -169,16 +164,16 @@ export default function QueuePage() {
           return (
             <div
               key={visit.id}
-              className={`bg-slate-900/90 border rounded-2xl p-5 shadow-lg space-y-4 transition-all hover:border-slate-700 relative overflow-hidden ${
+              className={`bg-[#0b1329]/90 border rounded-2xl p-5 shadow-lg space-y-4 transition-all hover:border-slate-700 relative overflow-hidden ${
                 visit.status === 'IN_CONSULTATION'
-                  ? 'border-blue-500/50 ring-1 ring-blue-500/30'
+                  ? 'border-blue-500/60 ring-1 ring-blue-500/30 shadow-blue-950/50'
                   : 'border-slate-800'
               }`}
             >
               {/* Token Number & Status Bar */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 font-bold font-mono text-base text-white flex items-center justify-center shadow-md">
+                  <span className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 to-indigo-700 font-bold font-mono text-base text-white flex items-center justify-center shadow-md shadow-blue-700/20">
                     #{visit.tokenNo}
                   </span>
                   <div>
@@ -189,12 +184,24 @@ export default function QueuePage() {
                   </div>
                 </div>
 
-                <span
-                  className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${status.bg}`}
-                >
-                  <span className={`w-2 h-2 rounded-full ${status.dot}`} />
-                  {status.label}
-                </span>
+                <div className="flex items-center gap-2">
+                  {/* 1-Click Print Parcha Button */}
+                  <button
+                    onClick={() => setSelectedVisitForPrint(visit)}
+                    className="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition-all"
+                    title="1-Click Print Prescription Slip (पर्चा)"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Parcha</span>
+                  </button>
+
+                  <span
+                    className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1.5 ${status.bg}`}
+                  >
+                    <span className={`w-2 h-2 rounded-full ${status.dot}`} />
+                    {status.label}
+                  </span>
+                </div>
               </div>
 
               {/* Patient Basic Info */}
@@ -202,7 +209,7 @@ export default function QueuePage() {
                 <div className="flex items-center justify-between">
                   <Link
                     href={`/patients/${visit.patient.id}`}
-                    className="font-bold text-sm text-slate-100 hover:text-cyan-400 transition-colors"
+                    className="font-bold text-sm text-slate-100 hover:text-blue-400 transition-colors"
                   >
                     {visit.patient.name}
                   </Link>
@@ -211,7 +218,7 @@ export default function QueuePage() {
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 flex items-center gap-2">
-                  <span>UHID: <span className="text-cyan-400 font-mono">{visit.patient.uhid}</span></span>
+                  <span>UHID: <span className="text-blue-400 font-mono">{visit.patient.uhid}</span></span>
                   <span>•</span>
                   <span>📞 {visit.patient.phone}</span>
                 </p>
@@ -230,9 +237,9 @@ export default function QueuePage() {
               {/* Doctor & Vitals Preview */}
               <div className="text-xs text-slate-400 space-y-1.5">
                 <div className="flex justify-between">
-                  <span>Doctor:</span>
+                  <span>Consulting Doctor:</span>
                   <span className="font-semibold text-slate-200">
-                    {visit.doctor.name} ({visit.doctor.cabinNo})
+                    Dr. Amitabh Upadhyay (Main Cabin)
                   </span>
                 </div>
                 {hasVitals && (
@@ -261,7 +268,7 @@ export default function QueuePage() {
                   onClick={() => handleStatusChange(visit.id, 'IN_CONSULTATION')}
                   className={`py-1.5 text-[11px] font-semibold rounded-lg border transition-all flex items-center justify-center gap-1 ${
                     visit.status === 'IN_CONSULTATION'
-                      ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                      ? 'bg-blue-600/30 text-blue-300 border-blue-500/50'
                       : 'bg-slate-950/40 text-slate-400 border-slate-800 hover:text-slate-200'
                   }`}
                 >
@@ -293,9 +300,9 @@ export default function QueuePage() {
 
                 <button
                   onClick={() => setSelectedVisitForRx(visit)}
-                  className="py-2 px-2 bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-300 border border-cyan-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
+                  className="py-2 px-2 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
                 >
-                  <Camera className="w-3.5 h-3.5 text-cyan-400" />
+                  <Camera className="w-3.5 h-3.5 text-blue-400" />
                   <span>Rx Photo</span>
                 </button>
 
@@ -316,7 +323,7 @@ export default function QueuePage() {
         <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-12 text-center">
           <Clock className="w-10 h-10 text-slate-500 mx-auto mb-3" />
           <h4 className="text-sm font-semibold text-slate-300">No tokens found in this view</h4>
-          <p className="text-xs text-slate-500 mt-1">Try switching tabs or clear search filters.</p>
+          <p className="text-xs text-slate-500 mt-1">Generate a new token or register a patient.</p>
         </div>
       )}
 
@@ -329,6 +336,15 @@ export default function QueuePage() {
             setIsQueueModalOpen(false);
             loadVisits();
           }}
+        />
+      )}
+
+      {selectedVisitForPrint && (
+        <PrescriptionSlipModal
+          isOpen={!!selectedVisitForPrint}
+          patientData={selectedVisitForPrint.patient}
+          visitData={selectedVisitForPrint}
+          onClose={() => setSelectedVisitForPrint(null)}
         />
       )}
 
