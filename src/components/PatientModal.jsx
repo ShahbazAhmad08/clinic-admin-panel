@@ -104,26 +104,26 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
-          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-8">
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-sm overflow-hidden animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl max-h-[92vh] flex flex-col bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden my-auto">
+            {/* Header (Pinned Top) */}
+            <div className="flex-shrink-0 flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-800 bg-slate-950/70">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-white">
+                  <h3 className="text-base font-bold text-white">
                     {initialData ? 'Edit Patient Record' : 'New Patient Registration (मरीज पंजीकरण)'}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-[11px] text-slate-400">
                     Skin & HIV Care Clinic • Dr. Amitabh Upadhyay
                   </p>
                 </div>
               </div>
               <button
                 onClick={onClose}
-                className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition-colors"
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -131,54 +131,50 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
 
             {/* Error Alert */}
             {error && (
-              <div className="mx-6 mt-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+              <div className="mx-6 mt-3 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2 flex-shrink-0">
                 <ShieldAlert className="w-4 h-4 flex-shrink-0" />
                 <span>{error}</span>
               </div>
             )}
 
-            {/* Form Body */}
-            <form onSubmit={(e) => handleSaveAndPrint(e, true)} className="p-6 space-y-4">
+            {/* Form Scrollable Body */}
+            <form id="patient-form" onSubmit={(e) => handleSaveAndPrint(e, true)} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Patient Full Name <span className="text-rose-400">*</span>
                   </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      placeholder="e.g. Anishta"
-                      value={formData.name}
-                      onChange={handleChange}
-                      className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="e.g. Anishta"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
                 </div>
 
                 {/* Mobile Phone */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Phone / WhatsApp Number <span className="text-rose-400">*</span>
                   </label>
-                  <div className="relative">
-                    <input
-                      type="tel"
-                      name="phone"
-                      required
-                      placeholder="e.g. 9876543210"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                    />
-                  </div>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="e.g. 9876543210"
+                    value={formData.phone}
+                    onChange={handleChange}
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  />
                 </div>
 
                 {/* Age */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Age (in Years) <span className="text-rose-400">*</span>
                   </label>
                   <input
@@ -190,18 +186,18 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                     placeholder="e.g. 52"
                     value={formData.age}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 {/* Gender */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">Gender</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Gender</label>
                   <select
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="Male">Male (पुरुष)</option>
                     <option value="Female">Female (महिला)</option>
@@ -211,12 +207,12 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
 
                 {/* Blood Group */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">Blood Group</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">Blood Group</label>
                   <select
                     name="bloodGroup"
                     value={formData.bloodGroup}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="A+">A+</option>
                     <option value="A-">A-</option>
@@ -232,7 +228,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
 
                 {/* Emergency Contact */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Emergency Contact (Name & Phone)
                   </label>
                   <input
@@ -241,28 +237,28 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                     placeholder="e.g. Son / Relative: 9811223344"
                     value={formData.emergencyContact}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               {/* Full Address */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">Full Address / City</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">Full Address / City</label>
                 <input
                   type="text"
                   name="address"
                   placeholder="e.g. Civil Lines / Jhunsi, Prayagraj"
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               {/* Clinical Alerts / Allergies / Chronic Conditions */}
               <div className="pt-2 border-t border-slate-800 space-y-3">
                 <div>
-                  <label className="block text-xs font-medium text-rose-400 mb-1.5 flex items-center gap-1.5">
+                  <label className="block text-xs font-semibold text-rose-400 mb-1.5 flex items-center gap-1.5">
                     <AlertTriangle className="w-3.5 h-3.5" />
                     Drug Allergies (दवा एलर्जी)
                   </label>
@@ -272,12 +268,12 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                     placeholder="e.g. Penicillin, Sulfa drugs (Leave blank if none)"
                     value={formData.allergies}
                     onChange={handleChange}
-                    className="w-full bg-rose-950/15 border border-rose-500/30 rounded-xl px-3.5 py-2 text-sm text-rose-200 placeholder-rose-400/40 focus:outline-none focus:border-rose-500"
+                    className="w-full bg-rose-950/20 border border-rose-500/30 rounded-xl px-3.5 py-2 text-sm text-rose-200 placeholder-rose-400/40 focus:outline-none focus:border-rose-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Chief Complaint / Skin Problem / Medical History
                   </label>
                   <input
@@ -286,7 +282,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                     placeholder="e.g. Skin rashes, Dermatitis, Psoriasis, Eczema, Allergy"
                     value={formData.chronicDiseases}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/60 border border-slate-700/70 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -306,44 +302,45 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                   </label>
                 </div>
               )}
+            </form>
 
-              {/* Footer Actions */}
-              <div className="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+            {/* Footer Actions (Pinned Bottom) */}
+            <div className="flex-shrink-0 px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 bg-slate-950/80">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 text-xs sm:text-sm text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
+              >
+                Cancel
+              </button>
+
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Save Only Button */}
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-sm text-slate-400 hover:text-slate-200 rounded-xl hover:bg-slate-800 transition-colors"
+                  onClick={(e) => handleSaveAndPrint(e, false)}
+                  disabled={loading}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold rounded-xl transition-all border border-slate-700 disabled:opacity-50"
                 >
-                  Cancel
+                  <span>{initialData ? 'Update Record' : 'Save Only'}</span>
                 </button>
 
-                <div className="flex items-center gap-3">
-                  {/* Save Only Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => handleSaveAndPrint(e, false)}
-                    disabled={loading}
-                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition-all border border-slate-700 disabled:opacity-50"
-                  >
-                    <span>{initialData ? 'Update Record' : 'Save Only'}</span>
-                  </button>
-
-                  {/* Save & 1-Click Print Parcha Button */}
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-700/25 disabled:opacity-50 flex items-center gap-2 active:scale-95"
-                  >
-                    {loading ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    ) : (
-                      <Printer className="w-4 h-4" />
-                    )}
-                    <span>{initialData ? 'Update & Print Slip' : 'Register & Print Parcha 🖨️'}</span>
-                  </button>
-                </div>
+                {/* Save & 1-Click Print Parcha Button */}
+                <button
+                  type="button"
+                  onClick={(e) => handleSaveAndPrint(e, true)}
+                  disabled={loading}
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-lg shadow-blue-700/25 disabled:opacity-50 flex items-center gap-2 active:scale-95"
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Printer className="w-4 h-4" />
+                  )}
+                  <span>{initialData ? 'Update & Print Slip' : 'Register & Print Parcha 🖨️'}</span>
+                </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       )}

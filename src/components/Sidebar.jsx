@@ -37,8 +37,8 @@ export default function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-40 w-64 hidden md:flex flex-col bg-[#0b1329]/95 border-r border-slate-800/80 backdrop-blur-xl transition-all duration-300">
       {/* Brand Header */}
       <div className="h-20 flex items-center px-5 gap-3 border-b border-slate-800/80 bg-slate-950/40">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-700 flex items-center justify-center shadow-lg shadow-blue-700/25 p-1 ring-1 ring-blue-500/30">
-          <ClinicLogo className="w-8 h-8" />
+        <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-blue-700/25 p-1 ring-1 ring-slate-200 shrink-0">
+          <ClinicLogo className="w-9 h-9" />
         </div>
         <div className="flex flex-col min-w-0">
           <span className="font-extrabold text-sm tracking-tight text-white truncate font-serif">

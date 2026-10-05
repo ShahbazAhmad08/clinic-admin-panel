@@ -211,9 +211,9 @@ export default function PrescriptionsPage() {
 
       {/* Lightbox Modal */}
       {lightboxPhoto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-          <div className="relative max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/90 backdrop-blur-md overflow-hidden animate-in fade-in duration-200">
+          <div className="relative max-w-4xl w-full bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl p-4 sm:p-6 space-y-4 max-h-[92vh] flex flex-col my-auto">
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">Prescription Photo High-Res Viewer</h3>
               <div className="flex items-center gap-2">
                 <button
@@ -243,7 +243,7 @@ export default function PrescriptionsPage() {
               </div>
             </div>
 
-            <div className="max-h-[600px] overflow-auto flex items-center justify-center bg-slate-950 rounded-2xl p-4">
+            <div className="flex-1 overflow-auto flex items-center justify-center bg-slate-950 rounded-2xl p-4 min-h-0">
               <img
                 src={lightboxPhoto}
                 alt="Prescription High Res"
@@ -251,7 +251,7 @@ export default function PrescriptionsPage() {
                   transform: `scale(${zoom}) rotate(${rotation}deg)`,
                   transition: 'transform 0.2s ease',
                 }}
-                className="max-h-[500px] object-contain"
+                className="max-h-[65vh] object-contain"
               />
             </div>
           </div>

@@ -267,9 +267,9 @@ export default function LabReportsPage() {
 
       {/* Upload Modal */}
       {isUploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-8">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/80 backdrop-blur-sm overflow-hidden animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+            <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/50">
               <div className="flex items-center gap-2.5">
                 <FlaskConical className="w-5 h-5 text-blue-400" />
                 <h3 className="text-base font-bold text-white">Upload Diagnostic Lab Report</h3>
@@ -288,7 +288,7 @@ export default function LabReportsPage() {
               </div>
             )}
 
-            <form onSubmit={handleUploadSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleUploadSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
               {/* Select Patient */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -406,7 +406,7 @@ export default function LabReportsPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <div className="flex-shrink-0 flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsUploadModalOpen(false)}
@@ -429,9 +429,9 @@ export default function LabReportsPage() {
 
       {/* View Document Modal */}
       {selectedReportView && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/90 backdrop-blur-md overflow-hidden animate-in fade-in duration-200">
+          <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl p-6 space-y-4 max-h-[92vh] flex flex-col my-auto">
+            <div className="flex-shrink-0 flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
                 <h3 className="text-base font-bold text-white">{selectedReportView.testName}</h3>
                 <p className="text-xs text-slate-400">{selectedReportView.patient?.name} ({selectedReportView.patient?.uhid})</p>
@@ -444,22 +444,24 @@ export default function LabReportsPage() {
               </button>
             </div>
 
-            {selectedReportView.reportFileUrl && (
-              <div className="max-h-[500px] overflow-auto rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center p-4">
-                <img
-                  src={selectedReportView.reportFileUrl}
-                  alt={selectedReportView.testName}
-                  className="max-h-[450px] object-contain rounded-lg"
-                />
-              </div>
-            )}
+            <div className="flex-1 overflow-y-auto space-y-4">
+              {selectedReportView.reportFileUrl && (
+                <div className="max-h-[500px] overflow-auto rounded-xl border border-slate-800 bg-slate-950 flex items-center justify-center p-4">
+                  <img
+                    src={selectedReportView.reportFileUrl}
+                    alt={selectedReportView.testName}
+                    className="max-h-[450px] object-contain rounded-lg"
+                  />
+                </div>
+              )}
 
-            {selectedReportView.notes && (
-              <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
-                <span className="font-bold text-slate-400 block mb-1">Interpretation:</span>
-                <p>{selectedReportView.notes}</p>
-              </div>
-            )}
+              {selectedReportView.notes && (
+                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-slate-300">
+                  <span className="font-bold text-slate-400 block mb-1">Interpretation:</span>
+                  <p>{selectedReportView.notes}</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

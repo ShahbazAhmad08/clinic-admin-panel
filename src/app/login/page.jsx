@@ -73,8 +73,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Clinic Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-700 shadow-xl shadow-blue-700/25 ring-4 ring-blue-500/20 text-white mb-4 p-2">
-            <ClinicLogo className="w-10 h-10" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white shadow-xl shadow-blue-700/25 ring-4 ring-blue-500/20 text-white mb-4 p-2">
+            <ClinicLogo className="w-12 h-12" />
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight font-serif">
             Skin & HIV Care Clinic

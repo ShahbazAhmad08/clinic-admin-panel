@@ -201,10 +201,10 @@ export default function PrescriptionUploadModal({ isOpen, onClose, onSuccess, vi
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 md:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md overflow-hidden animate-in fade-in duration-200">
       <div className="relative w-full max-w-4xl bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
               <UploadCloud className="w-5 h-5" />
@@ -233,7 +233,7 @@ export default function PrescriptionUploadModal({ isOpen, onClose, onSuccess, vi
         </div>
 
         {/* Tab switcher */}
-        <div className="flex items-center gap-2 px-6 pt-3 border-b border-slate-800/80 bg-slate-950/30">
+        <div className="flex-shrink-0 flex items-center gap-2 px-6 pt-3 border-b border-slate-800/80 bg-slate-950/30">
           <button
             type="button"
             onClick={() => setTab('PHOTO')}
@@ -536,7 +536,7 @@ export default function PrescriptionUploadModal({ isOpen, onClose, onSuccess, vi
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
+        <div className="flex-shrink-0 px-6 py-4 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between">
           <div className="text-xs text-slate-400">
             {photoBase64 ? '✓ Photo Attached' : 'No photo uploaded'}
           </div>

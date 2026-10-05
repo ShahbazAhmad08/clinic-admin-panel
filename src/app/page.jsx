@@ -88,8 +88,8 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#0b1329]/95 p-6 rounded-3xl border border-slate-800 shadow-xl relative overflow-hidden">
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-blue-600/10 to-transparent pointer-events-none" />
         <div className="relative z-10 flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-700 flex items-center justify-center p-1 shadow-lg shadow-blue-700/30 hidden sm:flex shrink-0">
-            <ClinicLogo className="w-10 h-10" />
+          <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center p-1.5 shadow-lg shadow-blue-700/30 hidden sm:flex shrink-0">
+            <ClinicLogo className="w-11 h-11" />
           </div>
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-semibold mb-2">
