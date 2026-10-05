@@ -57,9 +57,9 @@ export default function PatientsPage() {
   );
 
   const exportCSV = () => {
-    const headers = ['UHID,Name,Phone,Age,Gender,Blood Group,Allergies,Chronic Diseases,Registered Date\n'];
+    const headers = ['UHID,Name,Phone,Age,Gender,Blood Group,Medical Notes,Registered Date\n'];
     const rows = filteredPatients.map((p) =>
-      `"${p.uhid}","${p.name}","${p.phone}","${p.age}","${p.gender}","${p.bloodGroup || ''}","${p.allergies || ''}","${p.chronicDiseases || ''}","${formatDate(p.createdAt)}"`
+      `"${p.uhid}","${p.name}","${p.phone}","${p.age}","${p.gender}","${p.bloodGroup || ''}","${p.chronicDiseases || ''}","${formatDate(p.createdAt)}"`
     );
     const blob = new Blob([headers.concat(rows).join('\n')], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -82,7 +82,7 @@ export default function PatientsPage() {
             Patients Medical Directory
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Search registered patients, instant 1-click Prescription Slip (पर्चा) print, medical history & past visits.
+            Search registered patients, instant 1-click Prescription Slip print, medical history & past visits.
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export default function PatientsPage() {
                 <th className="py-3.5 px-5">Patient Name</th>
                 <th className="py-3.5 px-5">Contact / Phone</th>
                 <th className="py-3.5 px-5">Demographics</th>
-                <th className="py-3.5 px-5">Allergies & Medical Notes</th>
+                <th className="py-3.5 px-5">Medical Notes / History</th>
                 <th className="py-3.5 px-5">Last Visit</th>
                 <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
@@ -194,19 +194,14 @@ export default function PatientsPage() {
                       </div>
                     </td>
 
-                    {/* Allergies / Chronic */}
+                    {/* Medical Notes */}
                     <td className="py-4 px-5 max-w-xs">
-                      {patient.allergies ? (
-                        <span className="inline-block px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20 text-[10px] font-bold">
-                          ⚠️ {patient.allergies}
-                        </span>
-                      ) : (
-                        <span className="text-slate-500 text-[11px]">No known drug allergies</span>
-                      )}
-                      {patient.chronicDiseases && (
-                        <p className="text-[11px] text-slate-400 mt-1 truncate">
-                          • {patient.chronicDiseases}
+                      {patient.chronicDiseases ? (
+                        <p className="text-xs text-slate-300 font-medium truncate">
+                          {patient.chronicDiseases}
                         </p>
+                      ) : (
+                        <span className="text-slate-500 text-[11px]">—</span>
                       )}
                     </td>
 
@@ -234,7 +229,7 @@ export default function PatientsPage() {
                         <button
                           onClick={() => setSelectedPatientForPrint(patient)}
                           className="px-2.5 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all"
-                          title="Print Doctor Prescription Slip (पर्चा)"
+                          title="Print Doctor Prescription Slip"
                         >
                           <Printer className="w-3.5 h-3.5" />
                           <span>Print</span>

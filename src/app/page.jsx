@@ -100,7 +100,7 @@ export default function DashboardPage() {
               Skin & HIV Care Clinic
             </h1>
             <p className="text-xs md:text-sm text-slate-400 mt-1">
-              Patient registration, 1-click Prescription Slip (पर्चा) print, live waiting TV queue & lab reports.
+              Patient registration, 1-click Prescription Slip print, live waiting TV queue & lab reports.
             </p>
           </div>
         </div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
             className="px-4 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white rounded-2xl text-xs md:text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-blue-700/25 active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
-            <span>Register & Print Parcha 🖨️</span>
+            <span>Register & Print Slip</span>
           </button>
 
           <button
@@ -274,7 +274,7 @@ export default function DashboardPage() {
                     <button
                       onClick={() => setSelectedVisitForPrint(visit)}
                       className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
-                      title="1-Click Print Doctor Prescription Slip (पर्चा)"
+                      title="Print Doctor Prescription Slip"
                     >
                       <Printer className="w-3.5 h-3.5" />
                       <span>Print</span>

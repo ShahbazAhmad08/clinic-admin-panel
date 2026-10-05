@@ -134,7 +134,7 @@ export default function PatientDetailPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* 1-Click Print Parcha Button */}
+            {/* 1-Click Print Prescription Button */}
             <button
               onClick={() => {
                 setSelectedVisitForPrint(latestVisit);
@@ -143,7 +143,7 @@ export default function PatientDetailPage() {
               className="px-4 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-blue-700/25 active:scale-95 transition-all"
             >
               <Printer className="w-4 h-4" />
-              <span>Print OPD Parcha (पर्चा प्रिंट करें)</span>
+              <span>Print Prescription Slip</span>
             </button>
 
             <button
@@ -164,32 +164,18 @@ export default function PatientDetailPage() {
           </div>
         </div>
 
-        {/* Clinical Alert Warning Banner for Allergies & Chronic illness */}
-        {(patient.allergies || patient.chronicDiseases) && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            {patient.allergies && (
-              <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5">
-                <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold text-rose-400 uppercase tracking-wide text-[10px]">
-                    Drug Allergies Alert
-                  </strong>
-                  <span>{patient.allergies}</span>
-                </div>
+        {/* Clinical Notes / Medical History */}
+        {patient.chronicDiseases && (
+          <div className="pt-2">
+            <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-start gap-2.5">
+              <Heart className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <strong className="block font-bold text-blue-400 uppercase tracking-wide text-[10px]">
+                  Medical History & Chief Complaints
+                </strong>
+                <span>{patient.chronicDiseases}</span>
               </div>
-            )}
-
-            {patient.chronicDiseases && (
-              <div className="p-3.5 rounded-2xl bg-blue-500/10 border border-blue-500/30 text-blue-300 text-xs flex items-start gap-2.5">
-                <Heart className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <strong className="block font-bold text-blue-400 uppercase tracking-wide text-[10px]">
-                    Chronic Condition / Medical History
-                  </strong>
-                  <span>{patient.chronicDiseases}</span>
-                </div>
-              </div>
-            )}
+            </div>
           </div>
         )}
       </div>

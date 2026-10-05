@@ -93,7 +93,7 @@ export default function QueuePage() {
             Daily OPD Queue & Token Desk
           </h1>
           <p className="text-xs md:text-sm text-slate-400 mt-1">
-            Real-time token management, 1-click Prescription slip (पर्चा) print, and consultation tracker.
+            Real-time token management, 1-click Prescription slip print, and consultation tracker.
           </p>
         </div>
 
@@ -189,7 +189,7 @@ export default function QueuePage() {
                   <button
                     onClick={() => setSelectedVisitForPrint(visit)}
                     className="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition-all"
-                    title="1-Click Print Prescription Slip (पर्चा)"
+                    title="Print Prescription Slip"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>Print</span>
@@ -222,11 +222,6 @@ export default function QueuePage() {
                   <span>•</span>
                   <span>📞 {visit.patient.phone}</span>
                 </p>
-                {visit.patient.allergies && (
-                  <p className="text-[11px] text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">
-                    ⚠️ Allergy: {visit.patient.allergies}
-                  </p>
-                )}
                 {visit.chiefComplaints && (
                   <p className="text-xs text-slate-300 italic pt-1">
                     "{visit.chiefComplaints}"

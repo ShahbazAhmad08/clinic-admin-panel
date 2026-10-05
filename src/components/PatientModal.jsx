@@ -114,7 +114,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                 </div>
                 <div>
                   <h3 className="text-base font-bold text-white">
-                    {initialData ? 'Edit Patient Record' : 'New Patient Registration (मरीज पंजीकरण)'}
+                    {initialData ? 'Edit Patient Record' : 'New Patient Registration'}
                   </h3>
                   <p className="text-[11px] text-slate-400">
                     Skin & HIV Care Clinic • Dr. Amitabh Upadhyay
@@ -199,8 +199,8 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                     onChange={handleChange}
                     className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   >
-                    <option value="Male">Male (पुरुष)</option>
-                    <option value="Female">Female (महिला)</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                     <option value="Other">Other</option>
                   </select>
                 </div>
@@ -234,7 +234,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                   <input
                     type="text"
                     name="emergencyContact"
-                    placeholder="e.g. Son / Relative: 9811223344"
+                    placeholder="e.g. Relative: 9811223344"
                     value={formData.emergencyContact}
                     onChange={handleChange}
                     className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -255,23 +255,8 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                 />
               </div>
 
-              {/* Clinical Alerts / Allergies / Chronic Conditions */}
+              {/* Chief Complaint / Skin Problem / Medical History */}
               <div className="pt-2 border-t border-slate-800 space-y-3">
-                <div>
-                  <label className="block text-xs font-semibold text-rose-400 mb-1.5 flex items-center gap-1.5">
-                    <AlertTriangle className="w-3.5 h-3.5" />
-                    Drug Allergies (दवा एलर्जी)
-                  </label>
-                  <input
-                    type="text"
-                    name="allergies"
-                    placeholder="e.g. Penicillin, Sulfa drugs (Leave blank if none)"
-                    value={formData.allergies}
-                    onChange={handleChange}
-                    className="w-full bg-rose-950/20 border border-rose-500/30 rounded-xl px-3.5 py-2 text-sm text-rose-200 placeholder-rose-400/40 focus:outline-none focus:border-rose-500"
-                  />
-                </div>
-
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Chief Complaint / Skin Problem / Medical History
@@ -279,10 +264,10 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                   <input
                     type="text"
                     name="chronicDiseases"
-                    placeholder="e.g. Skin rashes, Dermatitis, Psoriasis, Eczema, Allergy"
+                    placeholder="e.g. Skin rashes, Dermatitis, Psoriasis, Eczema"
                     value={formData.chronicDiseases}
                     onChange={handleChange}
-                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                    className="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -325,7 +310,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                   <span>{initialData ? 'Update Record' : 'Save Only'}</span>
                 </button>
 
-                {/* Save & 1-Click Print Parcha Button */}
+                {/* Save & 1-Click Print Button */}
                 <button
                   type="button"
                   onClick={(e) => handleSaveAndPrint(e, true)}
@@ -337,7 +322,7 @@ export default function PatientModal({ isOpen, onClose, onSuccess, initialData =
                   ) : (
                     <Printer className="w-4 h-4" />
                   )}
-                  <span>{initialData ? 'Update & Print Slip' : 'Register & Print Parcha 🖨️'}</span>
+                  <span>{initialData ? 'Update & Print Slip' : 'Register & Print Slip'}</span>
                 </button>
               </div>
             </div>

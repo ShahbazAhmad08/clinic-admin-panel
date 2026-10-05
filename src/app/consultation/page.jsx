@@ -322,13 +322,6 @@ export default function ConsultationPage() {
 
                 {/* Patient Clinical Highlights & Vitals */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  {activeVisit.patient.allergies && (
-                    <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                      <span><strong>Drug Allergy:</strong> {activeVisit.patient.allergies}</span>
-                    </div>
-                  )}
-
                   {activeVisit.patient.chronicDiseases && (
                     <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 flex items-center gap-2">
                       <Heart className="w-4 h-4 text-blue-400 flex-shrink-0" />

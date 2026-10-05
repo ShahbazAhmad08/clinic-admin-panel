@@ -183,7 +183,7 @@ export default function PrescriptionsPage() {
                   className="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-700/20 active:scale-95"
                 >
                   <Printer className="w-3.5 h-3.5" />
-                  <span>Print Parcha (1-Click)</span>
+                  <span>Print Prescription</span>
                 </button>
               </div>
             </div>
@@ -216,6 +216,18 @@ export default function PrescriptionsPage() {
             <div className="flex-shrink-0 flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-white">Prescription Photo High-Res Viewer</h3>
               <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedRxForPrint({
+                      photoUrl: lightboxPhoto,
+                      patient: { name: 'Prescription Document' },
+                    });
+                  }}
+                  className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print</span>
+                </button>
                 <button
                   onClick={() => setZoom((z) => Math.min(z + 0.25, 3))}
                   className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs"
