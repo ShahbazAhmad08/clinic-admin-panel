@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import { X, Printer, Image as ImageIcon, FileText } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { X, Printer, Image as ImageIcon, FileText, Download, Check, Stethoscope } from 'lucide-react';
 import ClinicLogo from './ClinicLogo';
 
 // Crisp realistic QR Code SVG for ICICI UPI / Clinic Desk
@@ -77,6 +77,85 @@ function ClinicQRCode({ className = 'w-14 h-14' }) {
   );
 }
 
+// Helpers for extracting data safely from diverse shapes
+function extractPhotoUrl(visitData, patientData) {
+  return (
+    visitData?.photoUrl ||
+    visitData?.prescription?.photoUrl ||
+    visitData?.prescriptions?.[0]?.photoUrl ||
+    patientData?.photoUrl ||
+    patientData?.prescriptions?.[0]?.photoUrl ||
+    patientData?.visits?.[0]?.prescriptions?.[0]?.photoUrl ||
+    patientData?.visits?.[0]?.photoUrl ||
+    null
+  );
+}
+
+function extractMedicines(visitData, patientData) {
+  // If already array in visitData.medicines
+  if (Array.isArray(visitData?.medicines) && visitData.medicines.length > 0) {
+    return visitData.medicines;
+  }
+
+  const rawList = [
+    visitData?.digitalRxJson,
+    visitData?.prescription?.digitalRxJson,
+    visitData?.prescriptions?.[0]?.digitalRxJson,
+    patientData?.prescriptions?.[0]?.digitalRxJson,
+    patientData?.visits?.[0]?.prescriptions?.[0]?.digitalRxJson,
+    patientData?.visits?.[0]?.digitalRxJson,
+  ];
+
+  for (const raw of rawList) {
+    if (!raw) continue;
+    if (Array.isArray(raw)) return raw;
+    if (typeof raw === 'object' && raw !== null) return [raw];
+    if (typeof raw === 'string') {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (parsed && typeof parsed === 'object') return [parsed];
+      } catch (e) {}
+    }
+  }
+
+  // Iterate over all prescriptions array if available
+  if (Array.isArray(visitData?.prescriptions)) {
+    for (const rx of visitData.prescriptions) {
+      if (rx?.digitalRxJson) {
+        if (Array.isArray(rx.digitalRxJson)) return rx.digitalRxJson;
+        try {
+          const parsed = JSON.parse(rx.digitalRxJson);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (e) {}
+      }
+    }
+  }
+
+  return [];
+}
+
+function extractInstructions(visitData, patientData) {
+  return (
+    visitData?.instructions ||
+    visitData?.prescription?.instructions ||
+    visitData?.prescriptions?.[0]?.instructions ||
+    patientData?.prescriptions?.[0]?.instructions ||
+    patientData?.visits?.[0]?.prescriptions?.[0]?.instructions ||
+    patientData?.visits?.[0]?.instructions ||
+    ''
+  );
+}
+
+function extractDiagnosis(visitData, patientData) {
+  return (
+    visitData?.diagnosis ||
+    visitData?.visit?.diagnosis ||
+    patientData?.visits?.[0]?.diagnosis ||
+    ''
+  );
+}
+
 export default function PrescriptionSlipModal({
   isOpen,
   onClose,
@@ -85,44 +164,61 @@ export default function PrescriptionSlipModal({
 }) {
   const printRef = useRef(null);
 
-  // Check if prescription photo was uploaded
-  const photoUrl =
-    visitData?.photoUrl ||
-    visitData?.prescriptions?.[0]?.photoUrl ||
-    patientData?.prescriptions?.[0]?.photoUrl ||
-    null;
+  const photoUrl = extractPhotoUrl(visitData, patientData);
+  const medicines = extractMedicines(visitData, patientData);
+  const instructions = extractInstructions(visitData, patientData);
+  const diagnosis = extractDiagnosis(visitData, patientData);
 
   const [viewMode, setViewMode] = useState(photoUrl ? 'PHOTO' : 'TEMPLATE');
   const [includeDigitalRx, setIncludeDigitalRx] = useState(true);
 
+  // Sync viewMode whenever photoUrl or modal state updates
+  useEffect(() => {
+    if (photoUrl) {
+      setViewMode('PHOTO');
+    } else {
+      setViewMode('TEMPLATE');
+    }
+  }, [photoUrl, isOpen, visitData?.id, patientData?.id]);
+
   if (!isOpen || !patientData) return null;
 
   // Format date
-  const visitDateObj = visitData?.visitDate ? new Date(visitData.visitDate) : new Date();
+  const visitDateObj = visitData?.visitDate
+    ? new Date(visitData.visitDate)
+    : visitData?.createdAt
+    ? new Date(visitData.createdAt)
+    : new Date();
+
   const day = String(visitDateObj.getDate()).padStart(2, '0');
   const month = String(visitDateObj.getMonth() + 1).padStart(2, '0');
   const year = String(visitDateObj.getFullYear());
 
   const tokenNo = visitData?.tokenNo || 1;
 
-  // Parse digital medicines if available
-  let medicines = [];
-  if (visitData?.prescriptions?.[0]?.digitalRxJson) {
-    try {
-      medicines = JSON.parse(visitData.prescriptions[0].digitalRxJson);
-    } catch (e) {
-      medicines = [];
-    }
-  }
-
-  const instructions = visitData?.prescriptions?.[0]?.instructions || '';
-
   const handlePrint = () => {
     window.print();
   };
 
+  const handleDownloadImage = () => {
+    if (viewMode === 'PHOTO' && photoUrl) {
+      // Download the photo directly
+      const a = document.createElement('a');
+      a.href = photoUrl;
+      const safeName = (patientData?.name || 'Patient').replace(/\s+/g, '_');
+      const safeUhid = (patientData?.uhid || 'RX').replace(/[^a-zA-Z0-9_-]/g, '_');
+      a.download = `Prescription_${safeUhid}_${safeName}_${day}-${month}-${year}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } else {
+      // Print as PDF / Image
+      window.print();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-start justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto print:p-0 print:bg-white print:static animate-in fade-in duration-200">
       <div className="relative w-full max-w-4xl bg-white text-slate-900 rounded-2xl shadow-2xl overflow-hidden my-4 sm:my-8 print:my-0 print:rounded-none print:shadow-none print:max-w-none print:w-full">
         {/* Modal Controls (Hidden in Print) */}
         <div className="no-print sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-3 bg-slate-900 border-b border-slate-800 text-white shadow-md">
@@ -132,7 +228,7 @@ export default function PrescriptionSlipModal({
             </div>
             <div>
               <h3 className="text-sm font-bold text-white">
-                Prescription Print Desk
+                Prescription Print & Export Desk
               </h3>
               <p className="text-[11px] text-slate-400">
                 Skin & HIV Care Clinic • Dr. Amitabh Upadhyay
@@ -141,7 +237,7 @@ export default function PrescriptionSlipModal({
           </div>
 
           <div className="flex items-center flex-wrap gap-2 sm:gap-3">
-            {/* Toggle between Uploaded Photo and Digital Template if Photo exists */}
+            {/* Toggle between Uploaded Photo and Clinic Letterhead if Photo exists */}
             {photoUrl && (
               <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
                 <button
@@ -154,7 +250,7 @@ export default function PrescriptionSlipModal({
                   }`}
                 >
                   <ImageIcon className="w-3.5 h-3.5" />
-                  <span>Uploaded Rx Image</span>
+                  <span>Uploaded Rx Photo</span>
                 </button>
                 <button
                   type="button"
@@ -166,12 +262,12 @@ export default function PrescriptionSlipModal({
                   }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Clinic Letterhead</span>
+                  <span>Clinic Letterhead (Meds)</span>
                 </button>
               </div>
             )}
 
-            {viewMode === 'TEMPLATE' && (
+            {viewMode === 'TEMPLATE' && medicines.length > 0 && (
               <label className="hidden sm:flex items-center gap-1.5 text-xs text-slate-300 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 cursor-pointer">
                 <input
                   type="checkbox"
@@ -179,16 +275,30 @@ export default function PrescriptionSlipModal({
                   onChange={(e) => setIncludeDigitalRx(e.target.checked)}
                   className="rounded border-slate-700 text-blue-600 focus:ring-0"
                 />
-                <span>Include Rx Meds</span>
+                <span>Include Rx Meds ({medicines.length})</span>
               </label>
             )}
 
+            {/* Direct Download button */}
+            {viewMode === 'PHOTO' && photoUrl && (
+              <button
+                type="button"
+                onClick={handleDownloadImage}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-xl flex items-center gap-1.5 border border-slate-700 transition-all active:scale-95"
+                title="Download prescription image directly"
+              >
+                <Download className="w-3.5 h-3.5 text-blue-400" />
+                <span className="hidden sm:inline">Download Image</span>
+              </button>
+            )}
+
+            {/* Print / Save as PDF Button */}
             <button
               onClick={handlePrint}
               className="px-4 py-2 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-lg shadow-blue-700/20 transition-all active:scale-95"
             >
               <Printer className="w-4 h-4" />
-              <span>Print Prescription</span>
+              <span>Print / Save PDF</span>
             </button>
 
             <button
@@ -213,7 +323,7 @@ export default function PrescriptionSlipModal({
                 <img
                   src={photoUrl}
                   alt="Prescription"
-                  className="max-h-[85vh] print:max-h-[98vh] w-auto max-w-full object-contain mx-auto"
+                  className="max-h-[85vh] print:max-h-[98vh] w-auto max-w-full object-contain mx-auto shadow-sm rounded-lg print:rounded-none"
                 />
               </div>
             </div>
@@ -336,11 +446,19 @@ export default function PrescriptionSlipModal({
 
                   {/* Token Number Circle */}
                   <div className="flex items-center pl-2">
-                    <span className="w-8 h-8 rounded-full border-2 border-slate-900 font-bold font-mono text-sm flex items-center justify-center bg-white text-slate-950 shadow-sm">
+                    <span className="w-8 h-8 rounded-full border-2 border-slate-900 font-bold font-mono text-sm flex items-center justify-center bg-white text-slate-950 shadow-sm" title="Token Number">
                       {tokenNo}
                     </span>
                   </div>
                 </div>
+
+                {/* Optional Diagnosis Header Bar */}
+                {diagnosis && (
+                  <div className="py-1 px-1.5 border-b border-slate-300 flex items-center gap-2 text-xs bg-slate-50/70">
+                    <span className="text-slate-700 font-bold uppercase tracking-wider text-[10px]">Diagnosis:</span>
+                    <span className="font-semibold text-slate-950">{diagnosis}</span>
+                  </div>
+                )}
               </div>
 
               {/* Central Prescription Writing Area with Watermark */}
@@ -359,29 +477,49 @@ export default function PrescriptionSlipModal({
                   {/* Digital Medicines (if enabled & available) */}
                   {includeDigitalRx && medicines.length > 0 ? (
                     <div className="space-y-4 text-sm">
-                      {medicines.map((med, index) => (
-                        <div key={index} className="flex items-start justify-between border-b border-slate-100 pb-2">
-                          <div className="space-y-0.5">
-                            <p className="font-bold text-slate-900 text-sm sm:text-base">
-                              {index + 1}. {med.name}
-                            </p>
-                            <p className="text-xs text-slate-600">
-                              Dosage: <span className="font-semibold text-slate-800">{med.dosage}</span> ({med.timing})
-                              {med.notes && ` • ${med.notes}`}
-                            </p>
+                      <div className="space-y-3">
+                        {medicines.map((med, index) => (
+                          <div
+                            key={index}
+                            className="flex items-start justify-between border-b border-slate-200/90 pb-2.5 pt-1"
+                          >
+                            <div className="space-y-1">
+                              <p className="font-bold text-slate-950 text-sm sm:text-base leading-tight">
+                                {index + 1}. {med.name}
+                              </p>
+                              <div className="text-xs text-slate-700 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                                {med.dosage && (
+                                  <span>
+                                    Dosage: <strong className="font-bold text-slate-900">{med.dosage}</strong>
+                                  </span>
+                                )}
+                                {med.timing && (
+                                  <span className="text-slate-600 font-medium">
+                                    • {med.timing}
+                                  </span>
+                                )}
+                                {med.notes && (
+                                  <span className="italic text-slate-600">
+                                    • {med.notes}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {med.duration && (
+                              <span className="font-mono text-xs font-bold text-slate-800 px-2.5 py-1 bg-slate-100 border border-slate-300 rounded whitespace-nowrap ml-3">
+                                {med.duration}
+                              </span>
+                            )}
                           </div>
-                          <span className="font-mono text-xs font-bold text-slate-700 px-2 py-0.5 bg-slate-100 rounded">
-                            {med.duration}
-                          </span>
-                        </div>
-                      ))}
+                        ))}
+                      </div>
 
                       {instructions && (
-                        <div className="mt-6 pt-4 border-t border-slate-200">
-                          <p className="font-bold text-xs text-slate-800 uppercase tracking-wider">
+                        <div className="mt-6 pt-4 border-t-2 border-slate-300 bg-slate-50/50 p-3 rounded-lg">
+                          <p className="font-bold text-xs text-slate-900 uppercase tracking-wider mb-1">
                             Doctor's Advice & Instructions:
                           </p>
-                          <p className="text-xs sm:text-sm text-slate-700 mt-1 whitespace-pre-line">
+                          <p className="text-xs sm:text-sm text-slate-800 whitespace-pre-line leading-relaxed">
                             {instructions}
                           </p>
                         </div>

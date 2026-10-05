@@ -10,6 +10,9 @@ export async function GET(request) {
           include: {
             patient: true,
             doctor: true,
+            prescriptions: {
+              orderBy: { createdAt: 'desc' },
+            },
           },
         },
       },

@@ -504,10 +504,12 @@ export default function ConsultationPage() {
           visitData={{
             ...activeVisit,
             diagnosis,
+            photoUrl: activeVisit.prescriptions?.[0]?.photoUrl,
             prescriptions: [
               {
                 digitalRxJson: JSON.stringify(medicines.filter((m) => m.name.trim() !== '')),
                 instructions,
+                photoUrl: activeVisit.prescriptions?.[0]?.photoUrl,
               },
             ],
           }}

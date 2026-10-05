@@ -175,9 +175,16 @@ export default function PrescriptionsPage() {
                 <button
                   onClick={() =>
                     setSelectedRxForPrint({
-                      ...rx,
-                      patient,
+                      patient: rx.visit?.patient || patient,
+                      visit: rx.visit,
+                      prescription: rx,
                       prescriptions: [rx],
+                      photoUrl: rx.photoUrl,
+                      digitalRxJson: rx.digitalRxJson,
+                      instructions: rx.instructions,
+                      diagnosis: rx.visit?.diagnosis,
+                      tokenNo: rx.visit?.tokenNo,
+                      visitDate: rx.visit?.visitDate || rx.createdAt,
                     })
                   }
                   className="px-3.5 py-1.5 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-700/20 active:scale-95"
@@ -204,7 +211,11 @@ export default function PrescriptionsPage() {
         <PrescriptionSlipModal
           isOpen={!!selectedRxForPrint}
           patientData={selectedRxForPrint.patient}
-          visitData={selectedRxForPrint.visit || selectedRxForPrint}
+          visitData={{
+            ...(selectedRxForPrint.visit || {}),
+            ...selectedRxForPrint,
+            prescriptions: [selectedRxForPrint.prescription || selectedRxForPrint],
+          }}
           onClose={() => setSelectedRxForPrint(null)}
         />
       )}

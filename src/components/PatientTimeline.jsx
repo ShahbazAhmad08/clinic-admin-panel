@@ -42,9 +42,16 @@ export default function PatientTimeline({ visits = [] }) {
           const prescription = visit.prescriptions?.[0];
           const vitals = visit.vitals?.[0];
           const invoice = visit.invoices?.[0];
-          const digitalRx = prescription?.digitalRxJson
-            ? JSON.parse(prescription.digitalRxJson)
-            : [];
+          let digitalRx = [];
+          if (prescription?.digitalRxJson) {
+            try {
+              digitalRx = typeof prescription.digitalRxJson === 'string'
+                ? JSON.parse(prescription.digitalRxJson)
+                : (Array.isArray(prescription.digitalRxJson) ? prescription.digitalRxJson : []);
+            } catch (e) {
+              digitalRx = [];
+            }
+          }
 
           return (
             <div key={visit.id} className="relative pl-6 md:pl-8 group">

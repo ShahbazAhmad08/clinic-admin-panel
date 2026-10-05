@@ -246,19 +246,28 @@ export default function PatientDetailPage() {
                 </button>
               </div>
 
-              {rx.digitalRxJson && (
-                <div className="space-y-2 text-xs">
-                  {JSON.parse(rx.digitalRxJson).map((med, mIdx) => (
-                    <div key={mIdx} className="flex justify-between bg-slate-950/60 p-2 rounded-lg border border-slate-800">
-                      <div>
-                        <span className="font-semibold text-slate-200">{med.name}</span>
-                        <p className="text-[10px] text-slate-400">{med.dosage} ({med.timing})</p>
+              {rx.digitalRxJson && (() => {
+                let meds = [];
+                try {
+                  meds = typeof rx.digitalRxJson === 'string' ? JSON.parse(rx.digitalRxJson) : (Array.isArray(rx.digitalRxJson) ? rx.digitalRxJson : []);
+                } catch (e) {
+                  meds = [];
+                }
+                if (!meds || meds.length === 0) return null;
+                return (
+                  <div className="space-y-2 text-xs">
+                    {meds.map((med, mIdx) => (
+                      <div key={mIdx} className="flex justify-between bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                        <div>
+                          <span className="font-semibold text-slate-200">{med.name}</span>
+                          <p className="text-[10px] text-slate-400">{med.dosage} ({med.timing})</p>
+                        </div>
+                        <span className="font-mono text-slate-400">{med.duration}</span>
                       </div>
-                      <span className="font-mono text-slate-400">{med.duration}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
 
               {rx.instructions && (
                 <p className="text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800 italic">

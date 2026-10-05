@@ -24,6 +24,12 @@ export async function GET(request) {
         visits: {
           orderBy: { visitDate: 'desc' },
           take: 1,
+          include: {
+            doctor: true,
+            prescriptions: {
+              orderBy: { createdAt: 'desc' },
+            },
+          },
         },
       },
     });
