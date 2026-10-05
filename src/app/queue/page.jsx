@@ -185,14 +185,14 @@ export default function QueuePage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* 1-Click Print Parcha Button */}
+                  {/* 1-Click Print Button */}
                   <button
                     onClick={() => setSelectedVisitForPrint(visit)}
                     className="px-2.5 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold flex items-center gap-1 transition-all"
                     title="1-Click Print Prescription Slip (पर्चा)"
                   >
                     <Printer className="w-3.5 h-3.5" />
-                    <span>Print Parcha</span>
+                    <span>Print</span>
                   </button>
 
                   <span

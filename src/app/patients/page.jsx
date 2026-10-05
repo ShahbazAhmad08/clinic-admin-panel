@@ -230,14 +230,14 @@ export default function PatientsPage() {
                     {/* Actions */}
                     <td className="py-4 px-5 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {/* 1-Click Print Parcha Button */}
+                        {/* 1-Click Print Button */}
                         <button
                           onClick={() => setSelectedPatientForPrint(patient)}
-                          className="px-2.5 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl font-bold text-xs flex items-center gap-1 transition-all"
+                          className="px-2.5 py-1.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all"
                           title="Print Doctor Prescription Slip (पर्चा)"
                         >
                           <Printer className="w-3.5 h-3.5" />
-                          <span>Parcha</span>
+                          <span>Print</span>
                         </button>
 
                         <button

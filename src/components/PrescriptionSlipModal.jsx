@@ -147,7 +147,7 @@ export default function PrescriptionSlipModal({
               className="px-4 py-2 bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-600 hover:to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-lg shadow-blue-700/20 transition-all active:scale-95"
             >
               <Printer className="w-4 h-4" />
-              <span>Print Parcha (1-Click)</span>
+              <span>Print (1-Click)</span>
             </button>
 
             <button
@@ -194,8 +194,8 @@ export default function PrescriptionSlipModal({
               </div>
 
               {/* Center: Clinic Emblem Logo */}
-              <div className="col-span-2 flex flex-col items-center justify-center pt-1">
-                <ClinicLogo className="w-14 h-14 sm:w-16 sm:h-16 drop-shadow-sm" />
+              <div className="col-span-2 flex flex-col items-center justify-center py-0">
+                <ClinicLogo className="w-20 h-20 sm:w-24 sm:h-24" />
               </div>
 
               {/* Right: Hindi Name & Addresses + QR Code */}
